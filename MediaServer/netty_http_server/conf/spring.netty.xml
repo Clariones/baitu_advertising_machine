@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="nettyPipelineHanlderFactory" 
+		class="com.skynet.mediaserver.nettyhandler.DefaultHandlerFactory">
+	</bean>
+	
+	<bean id="HttpServerInitializer" 
+		class="com.skynet.mediaserver.app.HttpServerInitializer">
+	</bean>
+	
+    <bean id="nettyServer" class="com.skynet.mediaserver.app.HttpServer">
+        <property name="port" value="8180"/>
+    </bean>
+    
+    <bean id="mediaSaver" class="com.skynet.mediaserver.mediasaver.SimpleFileSystemMediaSaver">
+        <property name="repoistoryFolder" value="/udisk/temp"/>
+    </bean>
+    <bean id="fileUploadHandler" class="com.skynet.mediaserver.nettyhandler.FileUploadHandler" scope="prototype">
+        <property name="mediaSaver" ref="mediaSaver"/>
+    </bean>
+    <bean id="commonFileGetHandler" class="com.skynet.mediaserver.nettyhandler.CommonFileGetHandler" scope="prototype">
+        <property name="baseFolder" value="www"/>
+    </bean>
+    <bean id="fileDownloadHandler" class="com.skynet.mediaserver.nettyhandler.FileDownloadHandler" scope="prototype">
+        <property name="baseFolder" value="/udisk/temp/public"/>
+    </bean>
+    <bean id="fileSearHandler" class="com.skynet.mediaserver.nettyhandler.FileSearchHandler" scope="prototype">
+        <property name="baseFolder" value="/udisk/temp"/>
+    </bean>
+</beans>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+</head>
+
+<body>
+	<script src="js/jquery-1.10.2.min.js"></script>
+
+	<script>
+		function appendFileData(formData, fileElemId){
+			var fileElem = $('#'+fileElemId);
+			formData.append(fileElem.attr('name'), fileElem[0].files[0]);
+		}
+		function doAjax2() {
+			var args = {
+				appKey: "example",
+				medias: [
+					{
+						needAuth: false,
+						category: "/product/sku123",
+						resourceKey: "key1",
+						comments: "comments"
+					},
+					{
+						needAuth: false,
+						category: "/product/sku456",
+						resourceKey: "key2",
+						comments: "comments2"
+					}
+				]
+			};
+
+			var formData = new FormData();
+
+			
+			formData.append("jsonstr", JSON.stringify(args));
+			appendFileData(formData, "ajax_file");
+			appendFileData(formData, "ajax_file2");
+			$.ajax({
+				url: '/upload.ajax',
+				type: 'POST',
+				data: formData,
+				dataType: "json",
+				processData: false,
+				contentType: false,
+				beforeSend: function () {
+					//console.log("正在进行，请稍候");
+				},
+				success: function (data) {
+					$('#progess').text('100%');
+					//console.log('responsed');
+					alert(JSON.stringify(data, null, "  "));
+				},
+				xhr: function(){ 
+					var xhr = $.ajaxSettings.xhr();  
+					xhr.upload.onload = function (){  
+						console.log('finish downloading');
+					}  
+	
+					xhr.upload.onprogress = function (ev) {  
+						if(ev.lengthComputable) {  
+							var progress = parseInt(ev.loaded / ev.total * 1000, 10)/10;
+							progress = Math.min(progress, 99);
+							$('#progess').text(progress + '%');
+						}  
+					}  
+					return xhr;  
+				},
+				error: function (responseStr) {
+					console.log("error");
+				}
+			});
+		}
+	</script>
+	<div>
+		<input name="file[0]" id="ajax_file" value="" type="file" />
+		<br/>
+		<input name="file[1]" id="ajax_file2" value="" type="file" />
+		<br/>
+		<button id="submitId" onclick="doAjax2()">提交</button>
+	</div>
+	<span id="progess"></span>
+</body>
+
+</html>
