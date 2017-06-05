@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="js/skynet_draganddrop.js"></script>
+    <style>
+.dragable_list{
+    vertical-align: middle;
+    text-align: center;
+    position: relative;
+}
+.dragable_div {
+    height: 100px;
+    width: 200px;
+    position: relative;
+    display: flex;
+    justify-content:center;
+    align-items:Center;
+    border: 1px dotted blue;
+}
+.dragable_div2 {
+    height: 100px;
+    width: 200px;
+    position: relative;
+    display: inline-block;
+    justify-content:center;
+    align-items:Center;
+    border: 1px dotted blue;
+}
+
+.overTop {
+    border-top: 3px solid blue;
+    margin-top: -2px;
+}
+.overBottom {
+    border-bottom: 3px solid blue;
+    margin-bottom: -2px;
+}
+.overLeft {
+    border-left: 3px solid blue;
+    margin-left: -2px;
+}
+.overRight {
+    border-right: 3px solid blue;
+    margin-right: -2px;
+}
+
+    </style>
+</head>
+<body>
+
+    <div id="list_div" class="dragable_list">
+        <div class="dragable_div dragble_element">
+            Element 1
+        </div>
+        <div class="dragable_div dragble_element">
+            Element 2
+        </div>
+        <div class="dragable_div dragble_element">
+            Element 3
+        </div>
+        <div class="dragable_div dragble_element">
+            Element 4
+        </div>
+    </div>
+
+    <div id="list_div2" class="dragable_list">
+        <div class="dragable_div2 dragble_element2">
+            Element A
+        </div>
+        <div class="dragable_div2 dragble_element2">
+            Element B
+        </div>
+        <div class="dragable_div2 dragble_element2">
+            Element C
+        </div>
+        <div class="dragable_div2 dragble_element2">
+            Element D
+        </div>
+    </div>
+
+    <script>
+function moveElement(listId, movedIndex, targetIndex, isBefore){
+    // var debugElem = $("[data-index='"+movedIndex+"']");
+    // alert(debugElem);
+    var movedELement = $(listId).find("[data-index='"+movedIndex+"']");
+    var tgtELement = $(listId).find("[data-index='"+targetIndex+"']");
+    //alert("move " + $(movedELement).data("index")+" and "+ $(tgtELement).data("index"));
+    if (isBefore){
+        movedELement.insertBefore(tgtELement);
+    }else{
+        movedELement.insertAfter(tgtELement);
+    }
+}
+$(function(){
+    var dragTool = new DragDropManager();
+    dragTool.init("#list_div", ".dragble_element", 
+        {
+           showDragingPoints : false,
+           over_left_top_style: "overTop",
+           over_left_bottom_style: "overBottom",
+           over_right_top_style: "overTop",
+           over_right_bottom_style: "overBottom"
+
+        },
+        function(fromIndex, toIndex, position){
+            if (fromIndex == toIndex){
+                alert("nothing to move");
+                return;
+            }
+            //alert("move " + fromIndex+" to " + toIndex+": " + position);
+            if (position == "left_top" || position == "right_top"){
+                moveElement("#list_div", fromIndex, toIndex, true);
+            }else{
+                moveElement("#list_div", fromIndex, toIndex, false);
+            }
+        }
+    );
+
+    var dragTool2 = new DragDropManager();
+    dragTool2.init("#list_div2", ".dragble_element2", 
+        {
+           showDragingPoints : true,
+           over_left_top_style: "overLeft",
+           over_left_bottom_style: "overLeft",
+           over_right_top_style: "overRight",
+           over_right_bottom_style: "overRight"
+
+        },
+        function(fromIndex, toIndex, position){
+            if (fromIndex == toIndex){
+                alert("nothing to move");
+                return;
+            }
+            //alert("move " + fromIndex+" to " + toIndex+": " + position);
+            if (position == "left_top" || position == "left_bottom"){
+                moveElement("#list_div2", fromIndex, toIndex, true);
+            }else{
+                moveElement("#list_div2", fromIndex, toIndex, false);
+            }
+        }
+    );
+    
+});
+    </script>
+</body>
+</html>
