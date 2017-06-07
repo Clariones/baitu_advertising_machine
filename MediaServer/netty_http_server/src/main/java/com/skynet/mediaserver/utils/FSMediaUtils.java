@@ -23,15 +23,39 @@ public class FSMediaUtils {
 	}
 	
 	public static final String BINARY_CONTENT_TYPE="application/octet-stream";
-	
+	private static String calcHashPath(String key){
+		int hashCode = key.hashCode();
+		StringBuffer sb = new StringBuffer();
+		for(int i=0;i<4;i++){
+			sb.append(hashCode & 0xFF).append('/');
+			hashCode >>= 8;
+		}
+		return sb.toString();
+	}
+	private static String getPostfix(String filename){
+		int pos = filename.lastIndexOf('.');
+		if (pos < 0){
+			return null;
+		}
+		return filename.substring(pos);
+	}
 	public static String makeKey(String appKey, MediaData media) {
+		String key = media.getResourceKey();
+		String fileName = media.getFileName();
+		String keyPostfix = getPostfix(key);
+		String filePostfix = getPostfix(fileName);
+		if (keyPostfix == null && filePostfix != null){
+			key += filePostfix;
+		}
+		
+		key = key.replaceAll("[\\\\/\\*@]", " ");
 		StringBuffer sb = new StringBuffer();
 		if (media.isNeedAuth()){
 			sb.append("authed/");
 		}else{
 			sb.append("public/");
 		}
-		sb.append(appKey).append('/').append(media.getCategory()).append('/').append(media.getFileName());
+		sb.append(appKey).append('/').append(media.getCategory()).append('/').append(calcHashPath(key)).append(key);
 		return sb.toString().replaceAll("/+", "/").replaceAll("\\s+", "_");
 	}
 
@@ -50,7 +74,7 @@ public class FSMediaUtils {
 		return BINARY_CONTENT_TYPE;
 	}
 
-	protected static final Pattern ptnFSMediaInfo = Pattern.compile("(\\w+)/(\\w+)/(.*?)/([^/]+)");
+	protected static final Pattern ptnFSMediaInfo = Pattern.compile("(\\w+)/(\\w+)/(.*?)(/\\d+){4}/([^/]+)");
 	public static MediaData parseFileInfo(File file, File baseFolder) throws Exception {
 		MediaData data = new MediaData();
 		String filePath = file.getAbsoluteFile().getCanonicalPath();
@@ -62,7 +86,7 @@ public class FSMediaUtils {
 		Matcher m = ptnFSMediaInfo.matcher(filePath);
 		m.matches();
 		data.setCategory(m.group(3));
-		data.setFileName(m.group(4));
+		data.setFileName(m.group(5));
 		data.setNeedAuth(m.group(1).equals("authed"));
 		data.setAppKey(m.group(2));
 		data.setMediaUri(filePath);

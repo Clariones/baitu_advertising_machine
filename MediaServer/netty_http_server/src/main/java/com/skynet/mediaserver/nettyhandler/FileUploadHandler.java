@@ -125,11 +125,11 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
         		List<String> result = saveFileUploaded();
         		afterProcessFileUploaded();
         		long t2 = System.currentTimeMillis();
-        		System.out.println("Used time: " + (t2-t1)/1000.0);
+//        		System.out.println("Used time: " + (t2-t1)/1000.0);
         		sendSuccessResponse(ctx, result);
         		long t3 = System.currentTimeMillis();
-        		System.out.println("Used time: " + (t3-t1)/1000.0);
-        		System.out.println("??"+(System.currentTimeMillis() % 100000)/1000.0);
+//        		System.out.println("Used time: " + (t3-t1)/1000.0);
+//        		System.out.println("??"+(System.currentTimeMillis() % 100000)/1000.0);
         	}
             reset();
         }
@@ -181,7 +181,7 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
 		boolean handled = false;
 		while (decoder.hasNext()) {
 			handled = true;
-			System.out.println("*"+(System.currentTimeMillis() % 100000)/1000.0);
+//			System.out.println("*"+(System.currentTimeMillis() % 100000)/1000.0);
 			InterfaceHttpData data = decoder.next();
 			if (data != null) {
 				try {
@@ -197,7 +197,7 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
 			}
 		}
 		if (!handled){
-			System.out.println("." + t1);
+//			System.out.println("." + t1);
 		}
 	}
 
@@ -207,9 +207,9 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
             String value = attribute.getValue();
             addReqParam(attribute.getName(), value);
         } else {
-        	System.out.println("$"+(System.currentTimeMillis() % 100000)/1000.0);
+//        	System.out.println("$"+(System.currentTimeMillis() % 100000)/1000.0);
             if (data.getHttpDataType() == HttpDataType.FileUpload) {
-            	System.out.println(data.getClass().getCanonicalName());
+//            	System.out.println(data.getClass().getCanonicalName());
                 FileUpload fileUpload = (FileUpload) data;
 
                 if (fileUpload.isInMemory()){
@@ -224,7 +224,7 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
                     throw new Exception("\tFile to be continued but should not!\r\n");
                 }
             }
-            System.out.println("?"+(System.currentTimeMillis() % 100000)/1000.0);
+//            System.out.println("?"+(System.currentTimeMillis() % 100000)/1000.0);
         }
     }
     
@@ -250,7 +250,7 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
 		}
 		
 		Matcher m = ptnName.matcher(name);
-		System.out.println("parse name " + name);
+//		System.out.println("parse name " + name);
 		if (!m.matches()){
 			System.out.println( name + " not valid");
 			return;
