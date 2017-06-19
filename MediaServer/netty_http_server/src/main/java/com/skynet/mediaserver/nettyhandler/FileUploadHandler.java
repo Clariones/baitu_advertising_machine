@@ -316,6 +316,7 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
 		Matcher m = ptnName.matcher(name);
 		if (!m.matches()){
 			System.out.println("Invalid file element name " + name);
+			return;
 		}
 		int i = 0;
 		if (m.group(2) != null){

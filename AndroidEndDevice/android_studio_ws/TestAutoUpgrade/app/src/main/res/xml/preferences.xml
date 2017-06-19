@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:defaultValue="119.23.65.188"
+        android:key="pref_key_model_name"
+        android:title="型号" />
+    <EditTextPreference
+        android:inputType="number"
+        android:key="pref_key_serial_number"
+        android:title="序列号" />
+
+    <PreferenceScreen
+        android:key="wifi_settings"
+        android:summary=""
+        android:title="wifi设置">
+        <intent android:action="android.settings.WIFI_SETTINGS" />
+    </PreferenceScreen>
+
+</PreferenceScreen>

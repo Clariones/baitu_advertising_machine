@@ -44,8 +44,12 @@ public class FSMediaUtils {
 		String fileName = media.getFileName();
 		String keyPostfix = getPostfix(key);
 		String filePostfix = getPostfix(fileName);
-		if (keyPostfix == null && filePostfix != null){
-			key += filePostfix;
+		if (filePostfix != null){
+			if (keyPostfix == null){
+				key += filePostfix;
+			}else if (!key.toLowerCase().contains(filePostfix.toLowerCase())){
+				key += filePostfix;
+			}
 		}
 		
 		key = key.replaceAll("[\\\\/\\*@]", " ");

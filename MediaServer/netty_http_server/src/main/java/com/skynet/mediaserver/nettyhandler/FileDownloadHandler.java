@@ -22,6 +22,8 @@ import java.util.TimeZone;
 
 import javax.activation.MimetypesFileTypeMap;
 
+import com.skynet.mediaserver.utils.HttpResponseUtils;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -46,6 +48,7 @@ public class FileDownloadHandler extends SimpleChannelInboundHandler<HttpObject>
 
 	protected String pathPrefix = "/public";
 	private String baseFolder;
+	private HttpRequest httpRequest;
 	
 	public String getBaseFolder() {
 		return baseFolder;
@@ -70,7 +73,7 @@ public class FileDownloadHandler extends SimpleChannelInboundHandler<HttpObject>
 			return;
 		}
 		
-		HttpRequest httpRequest = (HttpRequest) msg;
+		httpRequest = (HttpRequest) msg;
 		String uri = httpRequest.uri();
 		if (uri == null) {
 			throw new Exception("Cannot got request URI");
@@ -108,14 +111,7 @@ public class FileDownloadHandler extends SimpleChannelInboundHandler<HttpObject>
 //	        response.headers().set(CONTENT_LENGTH, buf.readableBytes());
     		return;
     	}else{
-    		ByteBuf buf = copiedBuffer(fileName+" not found", CharsetUtil.UTF_8);;
-	        // Build the response object.
-	        response = new DefaultFullHttpResponse(
-	                HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND, buf);
-	
-	        response.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
-	        response.headers().set(CONTENT_LENGTH, buf.readableBytes());
-	        ctx.channel().writeAndFlush(response);
+    		HttpResponseUtils.sendSimpleResponse(ctx, fileName+" not found", HttpResponseStatus.NOT_FOUND, true, httpRequest);
     	}
 	}
 
@@ -123,7 +119,7 @@ public class FileDownloadHandler extends SimpleChannelInboundHandler<HttpObject>
 		return new File(baseFolder);
 	}
 
-	private void sendStaticFile(ChannelHandlerContext ctx, File tgtFile) throws Exception {
+	private void sendStaticFile2(ChannelHandlerContext ctx, File tgtFile) throws Exception {
 		// Write the content.
 		ByteBuf buf = copiedBuffer(readFileAsBytes(tgtFile));
 		// Build the response object.
@@ -139,13 +135,13 @@ public class FileDownloadHandler extends SimpleChannelInboundHandler<HttpObject>
 		ctx.channel().writeAndFlush(response);
 //		ctx.channel().write(response);
 	}
-	private void sendStaticFile1(ChannelHandlerContext ctx, File tgtFile) throws Exception {
+	private void sendStaticFile(ChannelHandlerContext ctx, File tgtFile) throws Exception {
 		HttpResponse response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
 		setContentTypeHeader(response, tgtFile);
 		setDateAndCacheHeaders(response, tgtFile);
 		//response.headers().set(HttpHeaderNames.CONTENT_TYPE, FSMediaUtils.calcContentTypeByName(tgtFile.getName()));
 		response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE);
-//		response.headers().set(HttpHeaderNames.CONTENT_LENGTH, tgtFile.length());
+		response.headers().set(HttpHeaderNames.CONTENT_LENGTH, tgtFile.length());
 //		response.headers().set(HttpHeaderNames.ACCEPT_RANGES, "bytes");
 		ctx.channel().write(response);
 		// Write the content.
