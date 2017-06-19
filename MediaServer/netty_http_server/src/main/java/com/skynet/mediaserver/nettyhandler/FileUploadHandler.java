@@ -86,6 +86,9 @@ public class FileUploadHandler extends SimpleChannelInboundHandler<HttpObject> {
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
 		DiskFileUpload.baseDirectory = mediaSaver.getBaseFolder();
+		if (msg instanceof HttpRequest){
+			System.out.println("Got request " + ((HttpRequest) msg).uri());
+		}
 		if (!isFileUploadRequest(ctx, msg)) {
 			ctx.fireChannelRead(msg);
 			return;

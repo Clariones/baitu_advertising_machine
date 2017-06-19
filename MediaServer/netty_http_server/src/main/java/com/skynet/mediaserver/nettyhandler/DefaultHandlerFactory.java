@@ -23,7 +23,7 @@ public class DefaultHandlerFactory implements NettyPipelineHanlderFactory,Applic
 		results.add((ChannelHandler) applicationContext.getBean("fileSearHandler"));
 		results.add(new ChunkedWriteHandler());
 		results.add((ChannelHandler) applicationContext.getBean("fileDownloadHandler"));
-		
+		results.add(new NotFoundHandler());
 		return results;
 	}
 
