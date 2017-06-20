@@ -34,7 +34,7 @@ public class AdWebView extends WebView{
     }
 
 
-    protected String getMachineAgent(){
+    public static String getMachineAgent(){
 
         StringBuilder sb = new StringBuilder();
         sb.append(Build.MANUFACTURER);

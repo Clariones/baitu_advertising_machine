@@ -22,14 +22,18 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.io.File;
+import java.util.Date;
 
 public class PlayingActivity extends AppCompatActivity {
 
     private Button mBtnUpgrade;
     private Button mBtnSettigs;
     private AdWebView mWebView;
+    private boolean upgrading = false;
+
     private int showFullScreenFlag = 0
             | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
             | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -37,6 +41,8 @@ public class PlayingActivity extends AppCompatActivity {
             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
             | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
             | View.SYSTEM_UI_FLAG_IMMERSIVE;
+
+    public static Handler publicHandler;
 
     private Handler handler = new Handler() {
 
@@ -48,6 +54,13 @@ public class PlayingActivity extends AppCompatActivity {
                 mWebView.loadUrl((String) obj);
                 return;
             }
+            if (obj instanceof ApkReleaseInfo){
+                if (!upgrading) {
+                    upgrading = true;
+                    downloadAndInstallApk((ApkReleaseInfo) obj);
+                }
+                return;
+            }
         };
     };
 
@@ -55,14 +68,10 @@ public class PlayingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         View decorView = getWindow().getDecorView();
-// Hide both the navigation bar and the status bar.
-// SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
-// a general rule, you should design your app to hide the status bar whenever you
-// hide the navigation bar.
         decorView.setSystemUiVisibility(showFullScreenFlag);
 
         setContentView(R.layout.activity_playing);
-
+        publicHandler = handler;
 
 
         mBtnUpgrade = (Button) findViewById(R.id.btnUpgrade);
@@ -117,8 +126,40 @@ public class PlayingActivity extends AppCompatActivity {
 
 
     private void doUpgrade() {
-        /*String destination = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/";
-        String fileName = "1.0.1.1.apk";
+        //Toast.makeText(PlayingActivity.this.getApplicationContext(), "无法获取版本信息", Toast.LENGTH_LONG).show();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(Constants.LOG_TAG, "query existed new version at " + new Date());
+                final ApkReleaseInfo apkInfo = LongRunningService.doApkVersionCheck();
+                if (apkInfo == null){
+                    PlayingActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(PlayingActivity.this, "无法获取版本信息", Toast.LENGTH_LONG).show();
+                            hideTitleBar();
+                        }
+                    });
+                    return;
+                }
+                if (!apkInfo.isSuccess()){
+                    PlayingActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(PlayingActivity.this, apkInfo.getErrMessage(), Toast.LENGTH_LONG).show();
+                            hideTitleBar();
+                        }
+                    });
+                    return;
+                }
+                downloadAndInstallApk(apkInfo);
+            }
+        }).start();
+    }
+
+    private void downloadAndInstallApk(ApkReleaseInfo apkInfo) {
+        String destination = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/";
+        String fileName = "adplayer_" + apkInfo.getReleaseVersion()+".apk";
         destination += fileName;
         final Uri uri = Uri.parse("file://" + destination);
 
@@ -129,12 +170,12 @@ public class PlayingActivity extends AppCompatActivity {
             file.delete();
 
         //get url of app on server
-        String url = apkUrl;
+        String url = apkInfo.getDownloadUrl();
 
         //set downloadmanager
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-        request.setDescription("Download apk");
-        request.setTitle("update.apk");
+        request.setDescription("Download adplayer apk");
+        request.setTitle(fileName);
 
         //set destination
         request.setDestinationUri(uri);
@@ -166,15 +207,7 @@ public class PlayingActivity extends AppCompatActivity {
 
                     final double dl_progress = (bytes_downloaded * 100.0 / bytes_total) * 100;
 
-                    MainActivity.this.runOnUiThread(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            progressBar.setProgress((int) dl_progress);
-                        }
-                    });
-
-                    Log.d("=====DWONLOAD=====", statusMessage(cursor)+" "+bytes_downloaded+"/"+bytes_total+"="+dl_progress);
+                    Log.d(Constants.LOG_TAG, statusMessage(cursor) + " " + bytes_downloaded + "/" + bytes_total + "=" + dl_progress);
                     cursor.close();
                     try {
                         Thread.sleep(100);
@@ -190,20 +223,18 @@ public class PlayingActivity extends AppCompatActivity {
             public void onReceive(Context ctxt, Intent intent) {
                 Intent install = new Intent(Intent.ACTION_VIEW);
                 install.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                install.setDataAndType(uri,"application/vnd.android.package-archive");
+                install.setDataAndType(uri, "application/vnd.android.package-archive");
                 //manager.getMimeTypeForDownloadedFile(downloadId));
                 startActivity(install);
 
                 unregisterReceiver(this);
                 finish();
-                progressBar.setVisibility(View.GONE);
+                //upgrading = false;
             }
 
         };
         //register receiver for when .apk download is compete
         registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-*/
-
     }
     private String statusMessage(Cursor c) {
         String msg = "???";
@@ -265,9 +296,13 @@ public class PlayingActivity extends AppCompatActivity {
         Log.i(Constants.LOG_TAG, "Point "+point.x+","+point.y);
 
         if (point.y > 200){
-            View barView = findViewById(R.id.title_bar);
-            barView.setVisibility(View.GONE);
+            hideTitleBar();
         }
+    }
+
+    private void hideTitleBar() {
+        View barView = findViewById(R.id.title_bar);
+        barView.setVisibility(View.GONE);
     }
 
     private void handleMoveEvent(MotionEvent event) {
