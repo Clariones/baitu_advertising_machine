@@ -1,91 +1,123 @@
-package com.bsq.testautoupgrade;
-
-
-import com.bsq.testautoupgrade.BuildConfig;
+package com.skynet.adplayer;
 
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.provider.SyncStateContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import java.io.File;
 
-public class MainActivity extends AppCompatActivity {
-    private Button btnSettings;
-    private Button btnUpgrade;
-    private ProgressBar progressBar;
-    private String apkUrl="http://52.80.68.233:8280/public/example/apk/delivery/167/145/156/77/1.0.1.1.apk";
-    private static final String TAG = "=====TEST=====";
+public class PlayingActivity extends AppCompatActivity {
+
+    private Button mBtnUpgrade;
+    private Button mBtnSettigs;
+    private AdWebView mWebView;
+    private int showFullScreenFlag = 0
+            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+            | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+            | View.SYSTEM_UI_FLAG_IMMERSIVE;
+
+    private Handler handler = new Handler() {
+
+        // 处理子线程给我们发送的消息。
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            Object obj = msg.obj;
+            if (obj instanceof String){
+                mWebView.loadUrl((String) obj);
+                return;
+            }
+        };
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        View decorView = getWindow().getDecorView();
+// Hide both the navigation bar and the status bar.
+// SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
+// a general rule, you should design your app to hide the status bar whenever you
+// hide the navigation bar.
+        decorView.setSystemUiVisibility(showFullScreenFlag);
 
-        try {
-            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            TextView txt = (TextView) findViewById(R.id.txt_version_code);
-            txt.setText(String.valueOf(BuildConfig.VERSION_CODE));
+        setContentView(R.layout.activity_playing);
 
-            txt = (TextView) findViewById(R.id.txt_version_name);
-            txt.setText(BuildConfig.VERSION_NAME);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
 
-        btnSettings = (Button) findViewById(R.id.button_settings);
-        btnSettings.setOnClickListener(new View.OnClickListener() {
+
+        mBtnUpgrade = (Button) findViewById(R.id.btnUpgrade);
+        mBtnUpgrade.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openSettingsActivity();
+                doUpgrade();
             }
         });
 
-        btnUpgrade = (Button) findViewById(R.id.button_settings2);
-        btnUpgrade.setOnClickListener(new View.OnClickListener() {
+        mBtnSettigs = (Button) findViewById(R.id.btnSettings);
+        mBtnSettigs.setOnClickListener(new View.OnClickListener(){
+
             @Override
             public void onClick(View v) {
-                progressBar.setVisibility(View.VISIBLE);
-                doUpgrade2();
+                doSettings();
             }
         });
 
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        mWebView = (AdWebView) findViewById(R.id.webView);
+        final String url = Constants.SERVER_URL_PREFIX + Constants.URL_RETRIEVE_AD_LIST;
+        Log.i(Constants.LOG_TAG, "Starting to retrieve from " + url);
+        mWebView.setWebViewClient(new WebViewClient());
+        mWebView.loadUrl(url);
+
+        Intent intent = new Intent(this, LongRunningService.class);
+        startService(intent);
     }
 
-    private void openSettingsActivity() {
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mWebView.destroy();
+    }
+
+    @Override
+    public boolean onGenericMotionEvent(MotionEvent event) {
+        return super.onGenericMotionEvent(event);
+    }
+
+    @Override
+    protected void onResume() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(showFullScreenFlag);
+        super.onResume();
+    }
+
+    private void doSettings() {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivityForResult(intent, Constants.REQUEST_CODE_OPEN_SETTING_ACTIVITY);
     }
 
-    private void doUpgrade(){
-//        Intent intent = new Intent(Intent.ACTION_VIEW ,Uri.parse(apkUrl));
-//        startActivity(intent);
-        UpdateApp atualizaApp = new UpdateApp();
-        atualizaApp.setContext(getApplicationContext());
-        atualizaApp.execute(apkUrl);
-    }
 
-    private void doUpgrade2(){
-        //get destination to update file and set Uri
-        //TODO: First I wanted to store my update .apk file on internal storage for my app but apparently android does not allow you to open and install
-        //aplication with existing package from there. So for me, alternative solution is Download directory in external storage. If there is better
-        //solution, please inform us in comment
-        String destination = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/";
+    private void doUpgrade() {
+        /*String destination = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/";
         String fileName = "1.0.1.1.apk";
         destination += fileName;
         final Uri uri = Uri.parse("file://" + destination);
@@ -159,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent install = new Intent(Intent.ACTION_VIEW);
                 install.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 install.setDataAndType(uri,"application/vnd.android.package-archive");
-                        //manager.getMimeTypeForDownloadedFile(downloadId));
+                //manager.getMimeTypeForDownloadedFile(downloadId));
                 startActivity(install);
 
                 unregisterReceiver(this);
@@ -170,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
         };
         //register receiver for when .apk download is compete
         registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-
+*/
 
     }
     private String statusMessage(Cursor c) {
@@ -208,12 +240,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         int action = event.getAction();
-        if (action == MotionEvent.ACTION_MOVE){
-            handleMoveEvent(event);
-            return true;
-        }else if (action == MotionEvent.ACTION_DOWN){
-            handleDownEvent(event);
-            return true;
+        View v = getCurrentFocus();
+        Log.i(Constants.LOG_TAG, v.getClass().getCanonicalName());
+        if (v instanceof WebView) {
+            if (action == MotionEvent.ACTION_MOVE) {
+                handleMoveEvent(event);
+                return false;
+            } else if (action == MotionEvent.ACTION_DOWN) {
+                handleDownEvent(event);
+                return super.dispatchTouchEvent(event);
+            }
         }
         return super.dispatchTouchEvent(event);
     }
@@ -226,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
 
         MotionEvent.PointerCoords point = new MotionEvent.PointerCoords();
         event.getPointerCoords(0, point);
-        Log.i(TAG, "Point "+point.x+","+point.y);
+        Log.i(Constants.LOG_TAG, "Point "+point.x+","+point.y);
 
         if (point.y > 200){
             View barView = findViewById(R.id.title_bar);
@@ -242,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
 
         MotionEvent.PointerCoords point = new MotionEvent.PointerCoords();
         event.getPointerCoords(0, point);
-        Log.i(TAG, "Point "+point.x+","+point.y);
+        Log.i(Constants.LOG_TAG, "Point "+point.x+","+point.y);
 
         if (point.y < 100){
             View barView = findViewById(R.id.title_bar);
