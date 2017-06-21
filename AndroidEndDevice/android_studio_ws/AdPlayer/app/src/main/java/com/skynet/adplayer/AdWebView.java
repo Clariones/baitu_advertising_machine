@@ -51,7 +51,8 @@ public class AdWebView extends WebView{
         this.getSettings().setUserAgentString(getMachineAgent());
         this.getSettings().setJavaScriptEnabled(true);
         this.getSettings().setBlockNetworkImage(false);
-
+        this.getSettings().setUseWideViewPort(true);
+        this.getSettings().setAppCacheEnabled(true);
     }
     public AdWebView(Context context, AttributeSet attrs, int defStyleAttr, boolean privateBrowsing) {
         super(context, attrs, defStyleAttr, privateBrowsing);

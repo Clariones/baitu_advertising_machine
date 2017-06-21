@@ -105,6 +105,8 @@ public class PlayingActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mWebView.destroy();
+        Intent intent = new Intent(this, LongRunningService.class);
+        stopService(intent);
     }
 
     @Override

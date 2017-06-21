@@ -21,14 +21,28 @@ import java.util.Date;
 public class LongRunningService extends Service {
     private static final String TAG = "LongRunningService";
 
-
     public LongRunningService() {
     }
+
 
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
+
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy()");
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        PendingIntent sender = PendingIntent.getBroadcast(this, 0, intent, 0);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        alarmManager.cancel(sender);
+    }
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -47,12 +61,14 @@ public class LongRunningService extends Service {
                 doUpgrade(apkInfo);
             }
         }).start();
+
         AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
         int alarmTime = 10 * 1000; // 定时10s for debug
         long trigerAtTime = SystemClock.elapsedRealtime() + alarmTime;
         Intent i = new Intent(this, AlarmReceiver.class);
         PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
         manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigerAtTime, pi);
+
 
         return super.onStartCommand(intent, flags, startId);
     }
