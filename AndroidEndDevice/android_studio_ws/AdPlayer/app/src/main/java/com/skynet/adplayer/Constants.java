@@ -6,7 +6,11 @@ package com.skynet.adplayer;
 public class Constants {
     public static final int REQUEST_CODE_OPEN_SETTING_ACTIVITY = 1001;
 
-    public static final String SERVER_URL_PREFIX = "http://192.168.1.101:8080/naf/";
+    public static final long TIME_1_SECOND = 1000;
+    public static final long TIME_1_MINUTE = 60 * TIME_1_SECOND;
+    public static final long TIME_1_HOUR = 60 * TIME_1_MINUTE;
+
+    public static final String SERVER_URL_PREFIX = "http://52.80.68.233:8380/naf/";
     public static final String URL_RETRIEVE_AD_LIST = "playListManager/retrievePlayList/";
     public static final String URL_CHECK_APK_VERSION = "adMachineApkManager/checkReleaseInfo/";
 

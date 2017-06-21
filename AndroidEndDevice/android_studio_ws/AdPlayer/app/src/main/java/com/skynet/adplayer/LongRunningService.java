@@ -20,6 +20,7 @@ import java.util.Date;
 
 public class LongRunningService extends Service {
     private static final String TAG = "LongRunningService";
+    private static long alarmTime = 30 * Constants.TIME_1_MINUTE; // 定时10s for debug
 
     public LongRunningService() {
     }
@@ -63,7 +64,7 @@ public class LongRunningService extends Service {
         }).start();
 
         AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        int alarmTime = 10 * 1000; // 定时10s for debug
+
         long trigerAtTime = SystemClock.elapsedRealtime() + alarmTime;
         Intent i = new Intent(this, AlarmReceiver.class);
         PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
