@@ -38,6 +38,7 @@ protected void onCreate(Bundle savedInstanceState) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
             updateStringSummary(prefs, "pref_key_model_name", Build.MANUFACTURER+" "+Build.MODEL);
             updateStringSummary(prefs, "pref_key_serial_number", Build.SERIAL);
+            updateStringSummary(prefs, "pref_key_apk_version", BuildConfig.VERSION_NAME);
         }
 
         private void updateStringSummary(SharedPreferences prefs, String key, String value) {

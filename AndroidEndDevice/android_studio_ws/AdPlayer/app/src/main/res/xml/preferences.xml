@@ -7,6 +7,9 @@
         android:inputType="number"
         android:key="pref_key_serial_number"
         android:title="序列号" />
+    <Preference
+        android:key="pref_key_apk_version"
+        android:title="版本号" />
     <PreferenceScreen
         android:key="wifi_settings"
         android:summary=""

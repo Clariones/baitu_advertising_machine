@@ -47,6 +47,10 @@ public class LongRunningService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (!Constants.IS_PRODUCT){
+            // if not product version, just for debug, will disable the auto upgrade
+            return super.onStartCommand(intent, flags, startId);
+        }
         new Thread(new Runnable() {
             @Override
             public void run() {
