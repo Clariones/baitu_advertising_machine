@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:key="pref_key_model_name"
+        android:title="型号" />
+    <Preference
+        android:inputType="number"
+        android:key="pref_key_serial_number"
+        android:title="序列号" />
+    <Preference
+        android:key="pref_key_apk_version"
+        android:title="版本号" />
+    <PreferenceScreen
+        android:key="wifi_settings"
+        android:summary=""
+        android:title="wifi设置">
+        <intent android:action="android.settings.WIFI_SETTINGS" />
+    </PreferenceScreen>
+
+</PreferenceScreen>

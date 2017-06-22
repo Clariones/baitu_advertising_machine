@@ -1,39 +1,33 @@
 package com.skynet.adplayer;
 
-import android.app.DownloadManager;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.Environment;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.SyncStateContract;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.Toast;
 
-import java.io.File;
+import com.skynet.adplayer.common.AdPlayerInfo;
+import com.skynet.adplayer.common.AdPlayerStatus;
+import com.skynet.adplayer.common.Constants;
+import com.skynet.adplayer.component.AdWebView;
+import com.skynet.adplayer.service.LongRunningService;
+
 import java.util.Date;
 
 public class PlayingActivity extends AppCompatActivity {
 
-    private Button mBtnUpgrade;
+    public static Handler publicHandler;
     private Button mBtnSettigs;
     private AdWebView mWebView;
     private boolean upgrading = false;
-
     private int showFullScreenFlag = 0
             | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
             | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -41,28 +35,18 @@ public class PlayingActivity extends AppCompatActivity {
             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
             | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
             | View.SYSTEM_UI_FLAG_IMMERSIVE;
+    private AdPlayerInfo adPlayerInfo;
+    private AdPlayerStatus adPlayerStatus;
 
-    public static Handler publicHandler;
-
-    private Handler handler = new Handler() {
-
-        // 处理子线程给我们发送的消息。
-        @Override
-        public void handleMessage(android.os.Message msg) {
-            Object obj = msg.obj;
-            if (obj instanceof String){
-                mWebView.loadUrl((String) obj);
-                return;
-            }
-            if (obj instanceof ApkReleaseInfo){
-                if (!upgrading) {
-                    upgrading = true;
-                    downloadAndInstallApk((ApkReleaseInfo) obj);
-                }
-                return;
-            }
-        };
-    };
+    private AdPlayerInfo initPlayInfo() {
+        AdPlayerInfo info = new AdPlayerInfo();
+        info.setVersion(BuildConfig.VERSION_NAME);
+        info.setManufacturer(Build.MANUFACTURER);
+        info.setModelName(Build.MODEL);
+        info.setSerialNumber(Build.SERIAL);
+//        info.setServerUrlPrefix(Constants.SERVER_URL_PREFIX);
+        return info;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,20 +55,30 @@ public class PlayingActivity extends AppCompatActivity {
         decorView.setSystemUiVisibility(showFullScreenFlag);
 
         setContentView(R.layout.activity_playing);
-        publicHandler = handler;
-
-
-        mBtnUpgrade = (Button) findViewById(R.id.btnUpgrade);
-        mBtnUpgrade.setOnClickListener(new View.OnClickListener() {
+        publicHandler = new Handler() {
+            // 处理子线程给我们发送的消息。
             @Override
-            public void onClick(View v) {
-                doUpgrade();
+            public void handleMessage(Message msg) {
+                switch (msg.what){
+                    case Constants.MESSAGE_STARTUP_INFO_FAIL:
+                        onConnectionFail();
+                        break;
+                    case Constants.MESSAGE_STARTUP_INFO_OK:
+                        onConnectionSuccess((String)msg.obj);
+                        break;
+                }
             }
-        });
+        };;
+
+        adPlayerInfo = initPlayInfo();
+        adPlayerStatus = new AdPlayerStatus();
+        adPlayerStatus.setConnected(false);
+        adPlayerStatus.setPlaying(false);
+        adPlayerInfo.setConnected(false);
+
 
         mBtnSettigs = (Button) findViewById(R.id.btnSettings);
-        mBtnSettigs.setOnClickListener(new View.OnClickListener(){
-
+        mBtnSettigs.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 doSettings();
@@ -92,11 +86,10 @@ public class PlayingActivity extends AppCompatActivity {
         });
 
         mWebView = (AdWebView) findViewById(R.id.webView);
-        final String url = Constants.SERVER_URL_PREFIX + Constants.URL_RETRIEVE_AD_LIST;
-        Log.i(Constants.LOG_TAG, "Starting to retrieve from " + url);
         mWebView.setWebViewClient(new WebViewClient());
-        mWebView.loadUrl(url);
 
+        mWebView.addJavascriptInterface(adPlayerInfo, "playerInfo");
+        mWebView.loadUrl("file:///android_asset/www/loading.html");
         Intent intent = new Intent(this, LongRunningService.class);
         startService(intent);
     }
@@ -127,148 +120,6 @@ public class PlayingActivity extends AppCompatActivity {
     }
 
 
-    private void doUpgrade() {
-        //Toast.makeText(PlayingActivity.this.getApplicationContext(), "无法获取版本信息", Toast.LENGTH_LONG).show();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(Constants.LOG_TAG, "query existed new version at " + new Date());
-                final ApkReleaseInfo apkInfo = LongRunningService.doApkVersionCheck();
-                if (apkInfo == null){
-                    PlayingActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(PlayingActivity.this, "无法获取版本信息", Toast.LENGTH_LONG).show();
-                            hideTitleBar();
-                        }
-                    });
-                    return;
-                }
-                if (!apkInfo.isSuccess()){
-                    PlayingActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(PlayingActivity.this, apkInfo.getErrMessage(), Toast.LENGTH_LONG).show();
-                            hideTitleBar();
-                        }
-                    });
-                    return;
-                }
-                downloadAndInstallApk(apkInfo);
-            }
-        }).start();
-    }
-
-    private void downloadAndInstallApk(ApkReleaseInfo apkInfo) {
-        String destination = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/";
-        String fileName = "adplayer_" + apkInfo.getReleaseVersion()+".apk";
-        destination += fileName;
-        final Uri uri = Uri.parse("file://" + destination);
-
-        //Delete update file if exists
-        File file = new File(destination);
-        if (file.exists())
-            //file.delete() - test this, I think sometimes it doesnt work
-            file.delete();
-
-        //get url of app on server
-        String url = apkInfo.getDownloadUrl();
-
-        //set downloadmanager
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-        request.setDescription("Download adplayer apk");
-        request.setTitle(fileName);
-
-        //set destination
-        request.setDestinationUri(uri);
-
-        // get download service and enqueue file
-        final DownloadManager manager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-        final long downloadId = manager.enqueue(request);
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-
-                boolean downloading = true;
-
-                while (downloading) {
-
-                    DownloadManager.Query q = new DownloadManager.Query();
-                    q.setFilterById(downloadId);
-
-                    Cursor cursor = manager.query(q);
-                    cursor.moveToFirst();
-                    int bytes_downloaded = cursor.getInt(cursor
-                            .getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-                    int bytes_total = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-
-                    if (cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)) == DownloadManager.STATUS_SUCCESSFUL) {
-                        downloading = false;
-                    }
-
-                    final double dl_progress = (bytes_downloaded * 100.0 / bytes_total) * 100;
-
-                    Log.d(Constants.LOG_TAG, statusMessage(cursor) + " " + bytes_downloaded + "/" + bytes_total + "=" + dl_progress);
-                    cursor.close();
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-            }
-        }).start();
-        //set BroadcastReceiver to install app when .apk is downloaded
-        BroadcastReceiver onComplete = new BroadcastReceiver() {
-            public void onReceive(Context ctxt, Intent intent) {
-                Intent install = new Intent(Intent.ACTION_VIEW);
-                install.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                install.setDataAndType(uri, "application/vnd.android.package-archive");
-                //manager.getMimeTypeForDownloadedFile(downloadId));
-                startActivity(install);
-
-                unregisterReceiver(this);
-                finish();
-                //upgrading = false;
-            }
-
-        };
-        //register receiver for when .apk download is compete
-        registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-    }
-    private String statusMessage(Cursor c) {
-        String msg = "???";
-
-        switch (c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS))) {
-            case DownloadManager.STATUS_FAILED:
-                msg = "Download failed!";
-                break;
-
-            case DownloadManager.STATUS_PAUSED:
-                msg = "Download paused!";
-                break;
-
-            case DownloadManager.STATUS_PENDING:
-                msg = "Download pending!";
-                break;
-
-            case DownloadManager.STATUS_RUNNING:
-                msg = "Download in progress!";
-                break;
-
-            case DownloadManager.STATUS_SUCCESSFUL:
-                msg = "Download complete!";
-                break;
-
-            default:
-                msg = "Download is nowhere in sight";
-                break;
-        }
-
-        return (msg);
-    }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
@@ -289,15 +140,15 @@ public class PlayingActivity extends AppCompatActivity {
 
     private void handleDownEvent(MotionEvent event) {
         int n = event.getPointerCount();
-        if (n < 1){
+        if (n < 1) {
             return;
         }
 
         MotionEvent.PointerCoords point = new MotionEvent.PointerCoords();
         event.getPointerCoords(0, point);
-        Log.i(Constants.LOG_TAG, "Point "+point.x+","+point.y);
+        Log.i(Constants.LOG_TAG, "Point " + point.x + "," + point.y);
 
-        if (point.y > 200){
+        if (point.y > 200) {
             hideTitleBar();
         }
     }
@@ -309,17 +160,41 @@ public class PlayingActivity extends AppCompatActivity {
 
     private void handleMoveEvent(MotionEvent event) {
         int n = event.getPointerCount();
-        if (n < 1){
+        if (n < 1) {
             return;
         }
 
         MotionEvent.PointerCoords point = new MotionEvent.PointerCoords();
         event.getPointerCoords(0, point);
-        Log.i(Constants.LOG_TAG, "Point "+point.x+","+point.y);
+        Log.i(Constants.LOG_TAG, "Point " + point.x + "," + point.y);
 
-        if (point.y < 100){
+        if (point.y < 100) {
             View barView = findViewById(R.id.title_bar);
             barView.setVisibility(View.VISIBLE);
         }
     }
+
+
+    private void onConnectionSuccess(String startUpUrl) {
+        adPlayerStatus.onConnectionSuccess(startUpUrl);
+        adPlayerInfo.setConnected(false);
+        if (!adPlayerStatus.isPlaying()){
+            Toast.makeText(this, "连接成功＠"+new Date(), Toast.LENGTH_SHORT).show();
+        }
+        if (adPlayerStatus.needRefresh()){
+            // TODO debug:
+            // startUpUrl = "http://192.168.1.101:8080/naf/playListManager/retrievePlayList/";
+
+            mWebView.loadUrl(startUpUrl);
+        }
+    }
+
+    private void onConnectionFail() {
+        adPlayerStatus.onConnectionFail();
+        adPlayerInfo.setConnected(false);
+        if (!adPlayerStatus.isPlaying()){
+            Toast.makeText(this, "连接失败＠"+new Date(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }

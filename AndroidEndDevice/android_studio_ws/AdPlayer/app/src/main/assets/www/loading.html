@@ -1,0 +1,45 @@
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+    <style>
+        .device_info_div{
+            background-color: #eedd98;
+        }
+        .device_info_div label{
+            width: 60px;
+            display: inline-block;
+            text-align: right;
+            padding: 2px 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>启动中...</h1>
+    <script>
+        var playerInfo = {
+            version: window.playerInfo.getVersion(),
+            manufacturer: window.playerInfo.getManufacturer(),
+            modelName: window.playerInfo.getModelName(),
+            SN: window.playerInfo.getSerialNumber()
+        };
+        function printVersion() {document.write(playerInfo.version)}
+        function printModel() {document.write(playerInfo.modelName)}
+        function printSN() {document.write(playerInfo.SN)}
+        function printManufacturer() {document.write(playerInfo.manufacturer)}
+    </script>
+
+    <div class="device_info_div">
+        <label>版本号:</label><script>printVersion()</script><br/>
+        <label>型号:</label><script>printModel()</script><br/>
+        <label>序列号:</label><script>printSN()</script><br/>
+        <label>生产商:</label><script>printManufacturer()</script><br/>
+    </div>
+<div id="test_result_div">
+    正在尝试连接服务器...
+</div>
+
+
+
+</body>
+</html>

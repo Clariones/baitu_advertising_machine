@@ -13,11 +13,15 @@ public class Constants {
     public static final long TIME_1_HOUR = 60 * TIME_1_MINUTE;
 
     public static final String SERVER_URL_PREFIX = "http://ad.bettbio.com:8380/naf/";
+//    public static final String SERVER_URL_PREFIX = "http://192.168.1.101:8080/naf/";
     public static final String URL_RETRIEVE_AD_LIST = "playListManager/retrievePlayList/";
     public static final String URL_CHECK_APK_VERSION = "adMachineApkManager/checkReleaseInfo/";
 
     public static final String LOG_TAG = "BETTBIO-AD-PLAYER";
     public static final int MESSAGE_START_LOADING = 1002;
     public static final int MESSAGE_NEW_VERSION_APK = 1003;
+
+    public static final String STATIC_CONTENT_FOLDER = "static";
+    public static final String STATIC_CONTENT_FILE = "index.html";
 
 }
