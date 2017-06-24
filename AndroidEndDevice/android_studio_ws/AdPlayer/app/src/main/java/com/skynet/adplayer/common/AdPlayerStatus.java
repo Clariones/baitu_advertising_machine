@@ -11,6 +11,24 @@ public class AdPlayerStatus {
     protected Date lastReloadTime;
     protected boolean connected;
     protected boolean playing;
+    protected String checkVersionUrl;
+    protected String downloadUrlPrex;
+
+    public String getDownloadUrlPrex() {
+        return downloadUrlPrex;
+    }
+
+    public void setDownloadUrlPrex(String downloadUrlPrex) {
+        this.downloadUrlPrex = downloadUrlPrex;
+    }
+
+    public String getCheckVersionUrl() {
+        return checkVersionUrl;
+    }
+
+    public void setCheckVersionUrl(String checkVersionUrl) {
+        this.checkVersionUrl = checkVersionUrl;
+    }
 
     public boolean isPlaying() {
         return playing;

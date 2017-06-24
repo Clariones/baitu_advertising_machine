@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.skynet.adplayer.common.Constants;
 import com.skynet.adplayer.PlayingActivity;
+import com.skynet.adplayer.common.StartUpInfo;
 
 import org.json.JSONObject;
 
@@ -54,12 +55,12 @@ public class LongRunningService extends Service {
             @Override
             public void run() {
                 Log.d(TAG, "query existed new version at " + new Date());
-                String startUpUrl = getStartUpUrl();
-                if (startUpUrl == null){
+                StartUpInfo startUpinfo = getStartUpUrl();
+                if (startUpinfo == null){
                     onStartUpInfoFail();
                     return;
                 }
-                onStartUpInfo(startUpUrl);
+                onStartUpInfo(startUpinfo);
             }
         }).start();
 
@@ -91,12 +92,12 @@ public class LongRunningService extends Service {
         sendMessageToPlayingActivity(Constants.MESSAGE_STARTUP_INFO_FAIL, null);
     }
 
-    private void onStartUpInfo(String startUpUrl) {
+    private void onStartUpInfo(StartUpInfo startUpUrl) {
         scheduleNextQuery(10 * Constants.TIME_1_SECOND);
         sendMessageToPlayingActivity(Constants.MESSAGE_STARTUP_INFO_OK, startUpUrl);
     }
 
-    public static String getStartUpUrl() {
+    public static StartUpInfo getStartUpUrl() {
 
         URL url;
         String urlStr = Constants.START_UP_SERVER_ADDRESS;
@@ -122,9 +123,16 @@ public class LongRunningService extends Service {
             String jsonStr = sb.toString();
             Log.i(TAG, "RESPONSE: " + jsonStr);
             JSONObject jObject = new JSONObject(jsonStr);
-            String startUpUrl = jObject.getString("startUpUrl");
 
-            return startUpUrl;
+            String startUpUrl = jObject.getString("startUpUrl");
+            String checkVersionUrl = jObject.getString("checkVersionUrl");
+            String publicMediaServerPrefix = jObject.getString("publicMediaServerPrefix");
+
+            StartUpInfo result = new StartUpInfo();
+            result.setCheckVersionUrl(checkVersionUrl);
+            result.setStartUpUrl(startUpUrl);
+            result.setPublicMediaServerPrefix(publicMediaServerPrefix);
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
