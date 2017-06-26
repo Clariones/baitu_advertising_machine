@@ -1,4 +1,4 @@
-package com.skynet.adplayer;
+package com.skynet.adplayer.service;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

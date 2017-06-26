@@ -25,7 +25,7 @@ public class DownloadUtils {
     }
 
     public static void startDownloadWork(String downloadDscp, String downloadTitle,
-                                         String savedFileName, String downloadUrl,
+                                         final String savedFileName, final String downloadUrl,
                                          final Activity context, final DownloadContentHandler handler) {
         final Uri uri = Uri.parse("file://" + savedFileName);
 

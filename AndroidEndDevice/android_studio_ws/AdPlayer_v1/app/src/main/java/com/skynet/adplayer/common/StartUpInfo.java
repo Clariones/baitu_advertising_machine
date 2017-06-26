@@ -7,15 +7,6 @@ public class StartUpInfo {
     protected String checkVersionUrl;
     protected String startUpUrl;
     protected String publicMediaServerPrefix;
-    protected String offlinePackageUrl;
-
-    public String getOfflinePackageUrl() {
-        return offlinePackageUrl;
-    }
-
-    public void setOfflinePackageUrl(String offlinePackageUrl) {
-        this.offlinePackageUrl = offlinePackageUrl;
-    }
 
     public String getPublicMediaServerPrefix() {
         return publicMediaServerPrefix;

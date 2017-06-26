@@ -2,7 +2,8 @@ package com.skynet.adplayer.utils;
 
 import android.util.Log;
 
-import com.skynet.adplayer.Constants;
+
+import com.skynet.adplayer.common.Constants;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -82,10 +82,14 @@ public class LongRunningService extends Service {
         Message msg = Message.obtain();
         msg.what = messageCode;
         msg.obj = value;
-        if (PlayingActivity.publicHandler == null){
+//        if (PlayingActivity.publicHandler == null){
+//            return;
+//        }
+//        PlayingActivity.publicHandler.sendMessage(msg);
+        if (PlayingActivity.me == null){
             return;
         }
-        PlayingActivity.publicHandler.sendMessage(msg);
+        PlayingActivity.me.handleStartupMessage(msg);
     }
     private void onStartUpInfoFail() {
         scheduleNextQuery(5 * Constants.TIME_1_SECOND);
@@ -127,10 +131,13 @@ public class LongRunningService extends Service {
             String startUpUrl = jObject.getString("startUpUrl");
             String checkVersionUrl = jObject.getString("checkVersionUrl");
             String publicMediaServerPrefix = jObject.getString("publicMediaServerPrefix");
+            String offlinePackageUrl = jObject.getString("offlinePackageUrl");
+
 
             StartUpInfo result = new StartUpInfo();
             result.setCheckVersionUrl(checkVersionUrl);
             result.setStartUpUrl(startUpUrl);
+            result.setOfflinePackageUrl(offlinePackageUrl);
             result.setPublicMediaServerPrefix(publicMediaServerPrefix);
             return result;
         } catch (Exception e) {

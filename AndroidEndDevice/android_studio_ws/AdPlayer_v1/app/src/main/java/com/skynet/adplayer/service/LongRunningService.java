@@ -1,4 +1,4 @@
-package com.skynet.adplayer;
+package com.skynet.adplayer.service;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -7,8 +7,11 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.SystemClock;
-import android.preference.PreferenceActivity;
 import android.util.Log;
+
+import com.skynet.adplayer.common.Constants;
+import com.skynet.adplayer.PlayingActivity;
+import com.skynet.adplayer.common.StartUpInfo;
 
 import org.json.JSONObject;
 
@@ -47,58 +50,65 @@ public class LongRunningService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (!Constants.IS_PRODUCT){
-            // if not product version, just for debug, will disable the auto upgrade
-            return super.onStartCommand(intent, flags, startId);
-        }
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 Log.d(TAG, "query existed new version at " + new Date());
-                ApkReleaseInfo apkInfo = doApkVersionCheck();
-                if (apkInfo == null){
+                StartUpInfo startUpinfo = getStartUpUrl();
+                if (startUpinfo == null){
+                    onStartUpInfoFail();
                     return;
                 }
-                if (!apkInfo.isSuccess()){
-                    Log.i(TAG, "Cannot upgrade: " + apkInfo.getErrMessage());
-                    return;
-                }
-                doUpgrade(apkInfo);
+                onStartUpInfo(startUpinfo);
             }
         }).start();
 
-        AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
-        long trigerAtTime = SystemClock.elapsedRealtime() + alarmTime;
-        Intent i = new Intent(this, AlarmReceiver.class);
-        PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
-        manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigerAtTime, pi);
 
 
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private void doUpgrade(ApkReleaseInfo apkInfo) {
+    private void scheduleNextQuery(long waitTime){
+        AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        long trigerAtTime = SystemClock.elapsedRealtime() + waitTime;
+        Intent i = new Intent(this, AlarmReceiver.class);
+        PendingIntent pi = PendingIntent.getBroadcast(this, 0, i, 0);
+        manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, trigerAtTime, pi);
+    }
+    private void sendMessageToPlayingActivity(int messageCode, Object value){
         Message msg = Message.obtain();
-        msg.what = Constants.MESSAGE_NEW_VERSION_APK;
-        msg.obj = apkInfo;
+        msg.what = messageCode;
+        msg.obj = value;
         if (PlayingActivity.publicHandler == null){
             return;
         }
         PlayingActivity.publicHandler.sendMessage(msg);
     }
+    private void onStartUpInfoFail() {
+        scheduleNextQuery(5 * Constants.TIME_1_SECOND);
+        sendMessageToPlayingActivity(Constants.MESSAGE_STARTUP_INFO_FAIL, null);
+    }
 
-    public static ApkReleaseInfo doApkVersionCheck() {
+    private void onStartUpInfo(StartUpInfo startUpUrl) {
+        scheduleNextQuery(10 * Constants.TIME_1_SECOND);
+        sendMessageToPlayingActivity(Constants.MESSAGE_STARTUP_INFO_OK, startUpUrl);
+    }
+
+    public static StartUpInfo getStartUpUrl() {
 
         URL url;
-        String urlStr = Constants.SERVER_URL_PREFIX + Constants.URL_CHECK_APK_VERSION;
+        String urlStr = Constants.START_UP_SERVER_ADDRESS;
 
         HttpURLConnection urlConnection = null;
         try {
             url = new URL(urlStr);
 
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestProperty("User-Agent", AdWebView.getMachineAgent());
+            urlConnection.setConnectTimeout(3000);
+            urlConnection.setReadTimeout(1000);
 
             InputStream in = urlConnection.getInputStream();
 
@@ -113,16 +123,15 @@ public class LongRunningService extends Service {
             String jsonStr = sb.toString();
             Log.i(TAG, "RESPONSE: " + jsonStr);
             JSONObject jObject = new JSONObject(jsonStr);
-            ApkReleaseInfo  result = new ApkReleaseInfo();
-            result.setDownloadUrl(jObject.getString("downloadUrl"));
-            result.setErrMessage(jObject.getString("errMessage"));
-            String dateStr = jObject.getString("releaseDate");
-            if (dateStr != null && !dateStr.isEmpty() && !dateStr.equalsIgnoreCase("null")){
-                result.setReleaseDate(new Date(Long.parseLong(dateStr)));
-            }
-            result.setReleaseVersion(jObject.getString("releaseVersion"));
-            result.setSuccess(jObject.getBoolean("success"));
 
+            String startUpUrl = jObject.getString("startUpUrl");
+            String checkVersionUrl = jObject.getString("checkVersionUrl");
+            String publicMediaServerPrefix = jObject.getString("publicMediaServerPrefix");
+
+            StartUpInfo result = new StartUpInfo();
+            result.setCheckVersionUrl(checkVersionUrl);
+            result.setStartUpUrl(startUpUrl);
+            result.setPublicMediaServerPrefix(publicMediaServerPrefix);
             return result;
         } catch (Exception e) {
             e.printStackTrace();

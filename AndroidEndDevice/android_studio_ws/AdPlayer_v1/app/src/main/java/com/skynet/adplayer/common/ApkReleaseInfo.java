@@ -1,4 +1,4 @@
-package com.skynet.adplayer;
+package com.skynet.adplayer.common;
 
 import java.util.Date;
 

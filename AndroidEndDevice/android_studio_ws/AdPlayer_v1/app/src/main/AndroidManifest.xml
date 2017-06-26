@@ -38,11 +38,11 @@
         <activity android:name=".SettingsActivity" />
 
         <service
-            android:name=".LongRunningService"
+            android:name=".service.LongRunningService"
             android:enabled="true"
             android:stopWithTask="true"
             android:exported="true"></service>
-        <receiver android:name=".AlarmReceiver" > </receiver>
+        <receiver android:name=".service.AlarmReceiver" > </receiver>
     </application>
 
 </manifest>

@@ -4,6 +4,7 @@ import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,15 +28,22 @@ import com.skynet.adplayer.common.StartUpInfo;
 import com.skynet.adplayer.component.AdWebView;
 import com.skynet.adplayer.service.LongRunningService;
 import com.skynet.adplayer.utils.DownloadUtils;
+import com.skynet.adplayer.utils.FileUtils;
 import com.skynet.adplayer.utils.UpgradeUtils;
+import com.skynet.adplayer.utils.ZipUtils;
 
+import java.io.File;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PlayingActivity extends AppCompatActivity {
 
     public static Handler publicHandler;
+    public static PlayingActivity me;
     private Button mBtnSettigs;
     private Button mBtnUpgrade;
+    private Button mBtnTestOffline;
     private AdWebView mWebView;
     private boolean upgrading = false;
     private int showFullScreenFlag = 0
@@ -58,9 +66,13 @@ public class PlayingActivity extends AppCompatActivity {
         return info;
     }
 
+    private File getOfflinePackageBaseFolder(){
+        return new File(Environment.getExternalStorageDirectory(), "offline");
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        me = this;
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(showFullScreenFlag);
 
@@ -69,22 +81,36 @@ public class PlayingActivity extends AppCompatActivity {
             // 处理子线程给我们发送的消息。
             @Override
             public void handleMessage(Message msg) {
-                switch (msg.what){
-                    case Constants.MESSAGE_STARTUP_INFO_FAIL:
-                        onConnectionFail();
-                        break;
-                    case Constants.MESSAGE_STARTUP_INFO_OK:
-                        onConnectionSuccess((StartUpInfo) msg.obj);
-                        break;
-                }
+                handleStartupMessage(msg);
             }
-        };;
+        };
 
+        File offlineBase = getOfflinePackageBaseFolder();
+        if (!offlineBase.isDirectory()) {
+            FileUtils.deleteAll(offlineBase);
+        }
+        if (!offlineBase.exists()){
+            if (offlineBase.mkdirs()){
+                Log.i(Constants.LOG_TAG, offlineBase+" was created");
+            }else{
+                Log.i(Constants.LOG_TAG, offlineBase+" cannot be created. No offline feature.");
+            }
+        }
         adPlayerInfo = initPlayInfo();
-        adPlayerStatus = new AdPlayerStatus();
-        adPlayerStatus.setConnected(false);
-        adPlayerStatus.setPlaying(false);
-        adPlayerInfo.setConnected(false);
+        adPlayerStatus = AdPlayerStatus.createInstance(new AdPlayerStatus.AdPlayerStatusChangeListener(){
+            public void onCreate(AdPlayerStatus result) {
+                Log.i(Constants.LOG_TAG, "AdPlayerStatus was created");
+            }
+            public void onStateChange(AdPlayerStatus.ACTION action, AdPlayerStatus status, String reason) {
+                Log.i(Constants.LOG_TAG, "AdPlayer status changed: "+status.getState()+", " +reason+", " + action);
+                onAdPlayerStatusChanged(action, status);
+            }
+            public void onNewOfflinePackage(String offlinePackageUrl, AdPlayerStatus status, String reson) {
+                Log.i(Constants.LOG_TAG, "onNewOfflinePackage("+offlinePackageUrl+","+reson+")");
+                downLoadOnfflinePackage(offlinePackageUrl, status);
+            }
+        });
+        checkExistedOfflinePackage();
 
         mBtnUpgrade = (Button) findViewById(R.id.btnUpgrade);
         mBtnUpgrade.setOnClickListener(new View.OnClickListener() {
@@ -110,6 +136,156 @@ public class PlayingActivity extends AppCompatActivity {
         Intent intent = new Intent(this, LongRunningService.class);
         startService(intent);
     }
+
+    public void handleStartupMessage(Message msg) {
+        switch (msg.what){
+            case Constants.MESSAGE_STARTUP_INFO_FAIL:
+                adPlayerStatus.onStartUpInfoFail();
+                break;
+            case Constants.MESSAGE_STARTUP_INFO_OK:
+                adPlayerStatus.onStartUpSuccess((StartUpInfo) msg.obj);
+                break;
+        }
+    }
+
+    private static final Pattern ptnPackagePath = Pattern.compile(".*?[/\\\\](\\w+)_(\\d+)");
+    private void checkExistedOfflinePackage() {
+        File baseFolder = getOfflinePackageBaseFolder();
+        if (!baseFolder.exists()){
+            Log.i(Constants.LOG_TAG, "Offline package never existed");
+            return;
+        }
+        File[] files = baseFolder.listFiles();
+        if (files == null){
+            Log.i(Constants.LOG_TAG, "No any available offline package");
+            return;
+        }
+        long pckVersion = 0;
+        String pckName = null;
+        for(File file : files){
+            if (!file.isDirectory()){
+                FileUtils.deleteAll(file);
+                continue;
+            }
+            Matcher m = ptnPackagePath.matcher(file.getAbsolutePath());
+            if (!m.matches()){
+                FileUtils.deleteAll(file);
+                continue;
+            }
+            long ver = Long.parseLong(m.group(2));
+            if (ver > pckVersion){
+                pckVersion = ver;
+                pckName= m.group(1).toLowerCase()+"_"+pckVersion;
+            }
+        }
+        if (pckName != null){
+            Log.i(Constants.LOG_TAG, "Found existed offline package " + pckName);
+            adPlayerStatus.setCurOfflinePackageName(pckName);
+        }else{
+            Log.i(Constants.LOG_TAG, "Cannot found any available offline package");
+        }
+    }
+
+    private void downLoadOnfflinePackage(final String offlinePackageUrl, AdPlayerStatus status) {
+        String packageName = AdPlayerStatus.calcOfflinePackageName(offlinePackageUrl);
+        String fileName = packageName+".zip";
+
+        final File targetFile = new File(getOfflinePackageBaseFolder(),fileName);
+
+        DownloadUtils.startDownloadWork("下载离线包",packageName+".zip", targetFile.getAbsolutePath(), offlinePackageUrl, this, new DownloadUtils.DownloadContentHandler(){
+            private long downloadId;
+            @Override
+            public void onReceive(Context ctxt, Intent intent, BroadcastReceiver broadcastReceiver, Uri uri) {
+                DownloadManager manager = (DownloadManager) ctxt.getSystemService(Context.DOWNLOAD_SERVICE);
+                DownloadManager.Query q = new DownloadManager.Query();
+                q.setFilterById(downloadId);
+
+                Cursor cursor = manager.query(q);
+                cursor.moveToFirst();
+
+                int downloadStatus = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                unregisterReceiver(broadcastReceiver);
+                if (downloadStatus == DownloadManager.STATUS_SUCCESSFUL) {
+                    Log.i(Constants.LOG_TAG, "download finsihed");
+                    // step3. unzip and display offline page
+                    onOfflineDownloadSuccess(targetFile.getAbsolutePath(), offlinePackageUrl, true);
+                }else{
+                    Log.i(Constants.LOG_TAG,"download failed: " + downloadStatus);
+                    onOfflineDownloadSuccess(null, offlinePackageUrl, false);
+                }
+
+            }
+
+            @Override
+            public void onProgress(int downloadStatus, int bytesDownloaded, int bytesTotal) {
+                Log.i(Constants.LOG_TAG, statusMessage(downloadStatus)+":"+bytesDownloaded+"/"+bytesTotal);
+            }
+
+            @Override
+            public void onDownloadStart(long downloadId) {
+                Log.i(Constants.LOG_TAG, "Start download from " + offlinePackageUrl);
+                this.downloadId = downloadId;
+            }
+        });
+    }
+    private void onOfflineDownloadSuccess(String fileName, String packageUrl, boolean success) {
+        if (!success){
+            adPlayerStatus.onOfflinePackageDownloaded(packageUrl, success);
+            return;
+        }
+        File zipFile = new File(fileName);
+        File dataFolder = getOfflinePackageBaseFolder();
+        String folderName = zipFile.getName();
+        folderName = folderName.substring(0, folderName.lastIndexOf('.')); // remove .zip postfix
+        final File targetFolder = new File(dataFolder, folderName);
+        Log.i(Constants.LOG_TAG, "Will extract to " + targetFolder.getAbsolutePath());
+        try{
+            ZipUtils.unzip(zipFile, targetFolder);
+        }catch (Exception e){
+            return;
+        }
+        adPlayerStatus.onOfflinePackageDownloaded(packageUrl, success);
+    }
+
+    private void onAdPlayerStatusChanged(final AdPlayerStatus.ACTION action, final AdPlayerStatus status) {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                switch(action){
+                    case RELOAD_OFFLINE:
+                        File targetFile = new File(getOfflinePackageBaseFolder(), status.getCurOfflinePackageName()+"/index.html");
+                        Uri uri = Uri.parse("file://" + targetFile.getAbsolutePath());
+                        mWebView.loadUrl("about:blank");
+                        mWebView.loadUrl(uri.toString());
+                        deleteOtherOfflinePackage(status.getCurOfflinePackageName());
+                        break;
+                    case RELOAD_ONLINE:
+                        mWebView.loadUrl("about:blank");
+                        mWebView.loadUrl(status.getStartUpUrl());
+
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+
+    }
+
+    private void deleteOtherOfflinePackage(String curOfflinePackageName) {
+        File baseFolder = getOfflinePackageBaseFolder();
+        File[] files = baseFolder.listFiles();
+        if (files == null || files.length < 1){
+            return;
+        }
+        for(File file:files){
+            if (file.getName().equals(curOfflinePackageName)){
+                continue;
+            }
+            FileUtils.deleteAll(file);
+        }
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -290,36 +466,6 @@ public class PlayingActivity extends AppCompatActivity {
             View barView = findViewById(R.id.title_bar);
             barView.setVisibility(View.VISIBLE);
         }
-    }
-
-
-    private void onConnectionSuccess(StartUpInfo startUpinfo) {
-        adPlayerStatus.setCheckVersionUrl(startUpinfo.getCheckVersionUrl());
-        adPlayerStatus.setDownloadUrlPrex(startUpinfo.getPublicMediaServerPrefix());
-
-        if (!adPlayerStatus.isPlaying() || !adPlayerStatus.isConnected()){
-            Toast.makeText(this, "连接成功＠"+new Date(), Toast.LENGTH_SHORT).show();
-        }
-        adPlayerStatus.onConnectionSuccess(startUpinfo.getStartUpUrl());
-        adPlayerInfo.setConnected(false);
-
-        if (adPlayerStatus.needRefresh()){
-            // TODO debug:
-            //startUpUrl = "http://192.168.1.101:8080/naf/playListManager/retrievePlayList/";
-
-            mWebView.loadUrl(startUpinfo.getStartUpUrl());
-        }
-    }
-
-    private void onConnectionFail() {
-        adPlayerStatus.setCheckVersionUrl(null);
-
-        if (!adPlayerStatus.isPlaying() || adPlayerStatus.isConnected()){
-            Toast.makeText(this, "连接失败＠"+new Date(), Toast.LENGTH_SHORT).show();
-        }
-        adPlayerStatus.onConnectionFail();
-        adPlayerInfo.setConnected(false);
-
     }
 
 }

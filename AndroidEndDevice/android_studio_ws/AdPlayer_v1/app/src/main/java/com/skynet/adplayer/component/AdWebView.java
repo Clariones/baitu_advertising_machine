@@ -1,10 +1,12 @@
-package com.skynet.adplayer;
+package com.skynet.adplayer.component;
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.webkit.WebView;
+
+import com.skynet.adplayer.BuildConfig;
 
 /**
  * Created by clariones on 6/20/17.

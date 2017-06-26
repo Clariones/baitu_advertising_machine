@@ -1,4 +1,4 @@
-package com.skynet.adplayer;
+package com.skynet.adplayer.common;
 
 import android.webkit.JavascriptInterface;
 
@@ -11,15 +11,15 @@ public class AdPlayerInfo {
     protected String modelName;
     protected String manufacturer;
     protected String serialNumber;
-    protected String serverUrlPrefix;
+    protected boolean connected;
 
     @JavascriptInterface
-    public String getServerUrlPrefix() {
-        return serverUrlPrefix;
+    public boolean isConnected() {
+        return connected;
     }
 
-    public void setServerUrlPrefix(String serverUrlPrefix) {
-        this.serverUrlPrefix = serverUrlPrefix;
+    public void setConnected(boolean connected) {
+        this.connected = connected;
     }
 
     @JavascriptInterface

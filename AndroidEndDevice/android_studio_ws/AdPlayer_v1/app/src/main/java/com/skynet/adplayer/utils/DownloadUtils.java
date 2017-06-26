@@ -8,9 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
-import android.util.Log;
-
-import com.skynet.adplayer.Constants;
 
 import java.io.File;
 

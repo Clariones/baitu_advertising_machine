@@ -30,5 +30,5 @@ public class Constants {
     public static final String START_UP_SERVER_ADDRESS = "http://www.bettbio.com/bettbio_ad/devices_v1/pc_iframe/data/startup/info.json";
 
     public static final long FORCE_RELOAD_TIME_PERIOD = 12 * TIME_1_HOUR;
-    public static final long RECONNECT_RELOAD_TIME_PERIOD = 30 * TIME_1_SECOND;
+
 }
