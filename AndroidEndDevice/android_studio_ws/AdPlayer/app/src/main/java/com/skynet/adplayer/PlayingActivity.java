@@ -132,6 +132,7 @@ public class PlayingActivity extends AppCompatActivity {
         mWebView.setWebViewClient(new WebViewClient());
 
         mWebView.addJavascriptInterface(adPlayerInfo, "playerInfo");
+        //mWebView.loadUrl("http://192.168.1.101:8880/temp/public/bettbio_ad/resource/media/148/161/51/56/%E6%AF%95%E4%B8%9A%E5%95%A6.jpg");
         mWebView.loadUrl("file:///android_asset/www/loading.html");
         Intent intent = new Intent(this, LongRunningService.class);
         startService(intent);
@@ -181,6 +182,7 @@ public class PlayingActivity extends AppCompatActivity {
         if (pckName != null){
             Log.i(Constants.LOG_TAG, "Found existed offline package " + pckName);
             adPlayerStatus.setCurOfflinePackageName(pckName);
+            adPlayerStatus.setLastOfflinePackageName(pckName);
         }else{
             Log.i(Constants.LOG_TAG, "Cannot found any available offline package");
         }
@@ -261,7 +263,11 @@ public class PlayingActivity extends AppCompatActivity {
                         break;
                     case RELOAD_ONLINE:
                         mWebView.loadUrl("about:blank");
-                        mWebView.loadUrl(status.getStartUpUrl());
+                        // TODO debug
+                        String url = "http://192.168.1.101:8080/naf/playListManager/retrievePlayList/";
+                        //String url = status.getStartUpUrl();
+
+                        mWebView.loadUrl(url);
 
                         break;
                     default:
