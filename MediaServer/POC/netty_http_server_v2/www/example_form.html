@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+	 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+<style type="text/css">
+.example_filed {
+	display: block;
+	padding-bottom: 20px;
+}
+.no_bottom_padding{
+	padding-bottom: 1px;	
+}
+.example_filed label{
+	width: 180px;
+	text-align: left;
+	display: inline-block;
+	padding-left: 10px;
+	font-weight: bolder;
+}
+.example_filed span{
+	color: darkcyan;
+	display: block;
+	padding-left: 10px;
+}
+.text_input {
+	width: 400px;	
+}
+
+.radio_input {
+	width: initial;
+}
+
+
+</style>
+</head>
+<body>
+	 <script src="js/jquery-1.10.2.min.js"></script>
+	 <script src="js/ajaxfileupload.js"></script>
+	<label>Example Form</label>
+	<br/>
+	<form action="/upload.html" method="POST" enctype="multipart/form-data" style="border: 1px solid gray;float:left;">
+		<div class="example_filed">
+			<span>Which APP is using skynet-media-server. Default is "all_public". Only need one for a form.</span>
+			<label></span>APP Key</label>
+			<input class="text_input" type="text" value="example" disabled/><!-- this only for show the value -->
+			<input name="appKey" class="text_input" type="hidden" value="example"/>
+		</div>
+		<span>One file</span>
+		<hr width="33%" align="left"/>
+		<div class="example_filed">
+			<span>Does this resouce need to be authorized or not when retrieve. Default is "false"</span>
+			<label>Need Authorization</label>
+			<input name="needAuth[0]" class="radio_input" type="radio" value="false" checked='checked'/>false
+			<input name="needAuth[0]" class="radio_input" type="radio" value="true" /> true
+		</div>
+		<div class="example_filed">
+			<span>The category path you want this resource to be placed. Can be anything you want. It was "all/any" if absent.</span>
+			<label>Resource Category</label>
+			<input name="category[0]" class="text_input" type="text" value="/product/shores/girls/pid456/skuid456" />
+		</div>
+		<div class="example_filed">
+			<span>The key you assigned to this resouce. It was file name if absent.</span>
+			<label>Resource Key</label>
+			<input name="resourceKey[0]" class="text_input" type="text" value="p456s456main.picture" />
+		</div>
+		<div class="example_filed">
+			<span>Comments for this resouce. It was helpful when search resource. It was empty by default.</span>
+			<label>Comments</label>
+			<input name="comments[0]" class="text_input" type="text" value="The main picture with large size for a women's shoes" />
+		</div>
+		<div class="example_filed">
+			<span>File selector element. <b style="color:red">Must have</b></span>
+			<label>File</label>
+			<input name="file[0]" type="file" value="" />
+		</div>
+		<span>Another file</span>
+		<hr width="33%" align="left"/>
+		<div class="example_filed no_bottom_padding">
+			<label>Need Authorization</label>
+			<input name="needAuth[1]" class="radio_input" type="radio" value="false" checked='checked'/>false
+			<input name="needAuth[1]" class="radio_input" type="radio" value="true" /> true
+		</div>
+		<div class="example_filed no_bottom_padding">
+			<label>Resource Category</label>
+			<input name="category[1]" class="text_input" type="text" value="/product/shores/girls/pid123/skuid123" />
+		</div>
+		<div class="example_filed no_bottom_padding">
+			<label>Resource Key</label>
+			<input name="resourceKey[1]" class="text_input" type="text" value="p123s123main.picture" />
+		</div>
+		<div class="example_filed no_bottom_padding">
+			<label>Comments</label>
+			<input name="comments[1]" class="text_input" type="text" value="The main picture with large size for a women's shoes" />
+		</div>
+		<div class="example_filed no_bottom_padding">
+			<label>File</label>
+			<input name="file[1]" type="file" value="" />
+		</div>
+		
+		<input type="submit" value="submit"/>
+	</form>
+	
+	
+</body>
+</html>
