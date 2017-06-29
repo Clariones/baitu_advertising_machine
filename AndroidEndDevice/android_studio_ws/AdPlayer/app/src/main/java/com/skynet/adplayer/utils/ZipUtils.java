@@ -1,5 +1,6 @@
 package com.skynet.adplayer.utils;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 
@@ -9,12 +10,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 /**
  * Created by clariones on 6/22/17.
  */
 public class ZipUtils {
+    public static interface ProgressCallback {
+        void updateProgress(int i, int totalEntries);
+    }
     public static void unzip1(File zipFile, File targetFolder) throws Exception {
         try {
             File f = targetFolder;
@@ -52,7 +57,7 @@ public class ZipUtils {
         }
     }
 
-    public static void unzip(File zipFile, File targetFolder) throws Exception {
+    public static void unzip(File zipFile, File targetFolder, ProgressCallback caller) throws Exception {
         if (zipFile == null || targetFolder == null) {
             throw new Exception("unzip input is null");
         }
@@ -73,6 +78,9 @@ public class ZipUtils {
         ZipInputStream zin = new ZipInputStream(new FileInputStream(zipFile));
         try {
             ZipEntry ze = null;
+            ZipFile tmpZipFile = new ZipFile(zipFile);
+            int totalEntries = tmpZipFile.size();
+            int doneEntries = 0;
             while ((ze = zin.getNextEntry()) != null) {
                 File newFile = new File(targetFolder, ze.getName());
                 if (ze.isDirectory()) {
@@ -90,6 +98,9 @@ public class ZipUtils {
                     } finally {
                         fout.close();
                     }
+                }
+                if (caller != null){
+                    caller.updateProgress(doneEntries++, totalEntries);
                 }
             }
         } finally {

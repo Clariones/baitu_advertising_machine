@@ -59,7 +59,7 @@ public class DownloadUtils {
 
                 while (downloading) {
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(500);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -87,7 +87,14 @@ public class DownloadUtils {
         //set BroadcastReceiver to install app when .apk is downloaded
         BroadcastReceiver onComplete = new BroadcastReceiver() {
             public void onReceive(Context ctxt, Intent intent) {
-                handler.onReceive(ctxt, intent, this, uri);
+                DownloadManager.Query q = new DownloadManager.Query();
+                q.setFilterById(downloadId);
+
+                Cursor cursor = manager.query(q);
+                cursor.moveToFirst();
+                int idx = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI);
+                String uriString = cursor.getString(idx);
+                handler.onReceive(ctxt, intent, this, Uri.parse(uriString));
             }
         };
         //register receiver for when .apk download is compete

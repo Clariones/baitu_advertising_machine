@@ -241,6 +241,7 @@ public class AdPlayerStatus {
     public void onOfflinePackageDownloaded(String pacakgeUrl, boolean success){
         if (!success){
             downloadingOfflinePackageName.remove(pacakgeUrl);
+            String packageName = calcOfflinePackageName(pacakgeUrl);
             return;
         }
         String packageName = calcOfflinePackageName(pacakgeUrl);
@@ -352,10 +353,12 @@ public class AdPlayerStatus {
             return;
         }
         String pkgName = calcOfflinePackageName(this.getOfflinePackageUrl());
-        if (downloadingOfflinePackageName.contains(pkgName)){
-            return; // if already in download list, ignore
+        synchronized (downloadingOfflinePackageName) {
+            if (downloadingOfflinePackageName.contains(pkgName)) {
+                return; // if already in download list, ignore
+            }
+            downloadingOfflinePackageName.add(pkgName);
         }
-        downloadingOfflinePackageName.add(pkgName);
         listener.onNewOfflinePackage(this.getOfflinePackageUrl(), this, "New offline package found");
     }
 

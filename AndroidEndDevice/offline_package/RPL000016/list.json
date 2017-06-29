@@ -1,0 +1,95 @@
+{
+    "adMachineId": "R000010",
+    "adMachineModel": "rk312x",
+    "adMachineSeqNo": "ROC02G1PDB",
+    "errImageUri": "public/bettbio_ad/resource/media/101/6/253/236/面包会有的.jpg",
+    "errMessage": null,
+    "pages": [
+        {
+            "playDuration": 15,
+            "imageUri": "public/bettbio_ad/resource/media/177/170/228/212/文章快讯6.27-1.jpg",
+            "contentId": "MC000015",
+            "index": 10
+        },
+        {
+            "playDuration": 15,
+            "imageUri": "public/bettbio_ad/resource/media/50/194/242/212/文章快讯6.27-2.jpg",
+            "contentId": "MC000029",
+            "index": 20
+        },
+        {
+            "playDuration": 15,
+            "imageUri": "public/bettbio_ad/resource/media/144/243/4/254/文章快讯.jpg",
+            "contentId": "MC000017",
+            "index": 30
+        },
+        {
+            "playDuration": 15,
+            "imageUri": "public/bettbio_ad/resource/media/152/229/122/63/蒽桂.jpg",
+            "contentId": "MC000018",
+            "index": 40
+        },
+        {
+            "playDuration": 15,
+            "imageUri": "public/bettbio_ad/resource/media/32/208/254/175/蒽桂2.jpg",
+            "contentId": "MC000019",
+            "index": 50
+        },
+        {
+            "playDuration": 15,
+            "imageUri": "public/bettbio_ad/resource/media/170/31/49/191/和元.jpg",
+            "contentId": "MC000020",
+            "index": 60
+        },
+        {
+            "playDuration": 15,
+            "imageUri": "public/bettbio_ad/resource/media/78/216/15/39/和元2.jpg",
+            "contentId": "MC000021",
+            "index": 70
+        },
+        {
+            "playDuration": 15,
+            "imageUri": "public/bettbio_ad/resource/media/61/73/72/53/捷瑞1.jpg",
+            "contentId": "MC000022",
+            "index": 80
+        },
+        {
+            "playDuration": 15,
+            "imageUri": "public/bettbio_ad/resource/media/190/96/86/53/捷瑞2.jpg",
+            "contentId": "MC000023",
+            "index": 90
+        },
+        {
+            "playDuration": 15,
+            "imageUri": "public/bettbio_ad/resource/media/156/161/117/164/闪晶更新1.jpg",
+            "contentId": "MC000024",
+            "index": 100
+        },
+        {
+            "playDuration": 15,
+            "imageUri": "public/bettbio_ad/resource/media/29/185/131/164/闪晶更新2.jpg",
+            "contentId": "MC000025",
+            "index": 110
+        },
+        {
+            "playDuration": 15,
+            "imageUri": "public/bettbio_ad/resource/media/55/166/131/110/人才招聘4.jpg",
+            "contentId": "MC000027",
+            "index": 130
+        },
+        {
+            "playDuration": 15,
+            "imageUri": "public/bettbio_ad/resource/media/227/135/134/226/人才招聘.jpg",
+            "contentId": "MC000028",
+            "index": 140
+        },
+        {
+            "playDuration": 15,
+            "imageUri": "public/bettbio_ad/resource/media/131/228/1/39/天气报告.jpg",
+            "contentId": "MC000030",
+            "index": 150
+        }
+    ],
+    "success": true,
+    "preview": true
+}

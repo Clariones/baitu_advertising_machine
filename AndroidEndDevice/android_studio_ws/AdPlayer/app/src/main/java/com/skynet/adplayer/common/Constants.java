@@ -31,4 +31,6 @@ public class Constants {
 
     public static final long FORCE_RELOAD_TIME_PERIOD = 12 * TIME_1_HOUR;
 
+    public static final String DEPLOY_DONE_FILE = "deploy.done";
+
 }
