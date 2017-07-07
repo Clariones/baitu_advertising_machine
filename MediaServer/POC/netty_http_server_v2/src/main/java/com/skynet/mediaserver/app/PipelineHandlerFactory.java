@@ -1,4 +1,4 @@
-package com.skynet.mediaserver;
+package com.skynet.mediaserver.app;
 
 import io.netty.channel.ChannelHandler;
 

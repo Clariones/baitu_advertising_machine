@@ -4,8 +4,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import com.skynet.mediaserver.PipelineHandlerFactory;
-
 import io.netty.channel.ChannelHandler;
 
 public class BasicPipelineHandlerFactory implements PipelineHandlerFactory,ApplicationContextAware {

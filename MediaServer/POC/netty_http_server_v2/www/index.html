@@ -2,17 +2,83 @@
 <html>
 <head>
 	 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	 <script src="/help/js/jquery-1.10.2.min.js"></script>
+	 <style>
+	 h1 {
+	 	text-decoration: underline;
+	 }
+	 .border_1 {
+	 	display: inline-block;
+	 	border: 1px solid gray;
+	 }
+	 label {
+	 	display: inline-block;
+	 	width: 240px;
+	 }
+	 .comments{
+		color: darkcyan;
+		display: inline-block;
+		padding-left: 10px;
+	}
+	 </style>
 </head>
-<body>
-<h1>Search</h1>
-<form action="search" method="GET" target="_search">
-	<input name="key" value=""/>
-	<input type="submit" value="Search"/>
-</form>
-<h2>Examples</h2>
+<body style="margin: 20px;">
+<h1>Upload Examples</h1>
 <ul>
 	<li><a href="/help/example_form.html">Form example</a></li>
 	<li><a href="/help/example_ajax.html">AJAX example</a></li>
 </ul>
+
+<h1>Search Example</h1>
+<div class="border_1">
+<form action="/search" method="GET" target="_search">
+	<label>Search Key<b style="color:red">(Must have)</b></label>: <input name="key" value="jpg"/><br/>
+	<label>App Key<b style="color:red">(Must have)</b></label>: <input name="appKey" value="example"/><br/>
+	<label>Category 1</label>: <input name="category" value=""/><br/>
+	<label>Category 2</label>: <input name="category" value=""/><br/>
+	<input type="submit" value="Search"/>
+</form>
+</div>
+
+<h1>Delete Example</h1>
+<div>
+	<label>uri<b style="color:red">(Must have)</b></label><br/>
+		<input id="delete_uri" value="" size="100" placeholder="查询中获得的有效URI"/><br/>
+<form id="delete_form" action="javascript:void(0)" method="GET" target="_delete">
+	<label>token<b style="color:red">(Must have)</b></label><span class="comments">（目前）每个appKey对应不同的token，需要线下获取。公开的是：all_public:public example:example</span><br/>
+		<input name="token" value="example"/><br/>
+	<label>appKey</label><br/>
+		<input name="appKey" value="" placeholder="缺省是 all_public"/><br/>
+	<label>delete scope</label><span class="comments">删除范围。可以是 all(缺省值)|self，all会连缩放的图一起删除，self只删除指定uri</span><br/>
+		<input name="delete" value="all" />
+	<br/>
+</form>
+<button onclick="submitDelete()">delete</button>
+</div>
+
+<h1>Scale Example</h1>
+<div>
+	<label>uri<b style="color:red">(Must have)</b></label><br/>
+		<input id="scale_uri" value="" size="100" placeholder="查询中获得的有效URI"/><br/>
+<form id="scale_form" action="javascript:void(0)" method="GET" target="_scale">
+	<label>w</label>
+		<input name="w" value="" type="number" placeholder="缩放后的宽度"/><br/>
+	<label>h</label>
+		<input name="h" value="" type="number" placeholder="缩放后的高度"/><br/>
+	<label>scale</label><span class="comments">缩放类型。可以是 fit(缺省值)|fill，fit按比例缩放，直到高或宽满足，fill按指定大小缩放</span><br/>
+		<input name="scale" value="fit" />
+	<br/>
+</form>
+<button onclick="submitScale()">查看缩放后的图片</button>
+<script>
+function submitDelete(){
+	$('#delete_form').attr("action", "/delete/" + $('#delete_uri').val());
+	$('#delete_form').submit();
+}
+function submitScale(){
+	$('#scale_form').attr("action", "/" + $('#scale_uri').val());
+	$('#scale_form').submit();
+}
+</script>
 </body>
 </html>

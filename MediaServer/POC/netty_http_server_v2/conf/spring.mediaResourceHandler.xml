@@ -7,5 +7,12 @@
 
 	<bean id="mediaResourceHandler" class="com.skynet.mediaserver.mediasaver.SimpleFileSystemMediaSaver">
         <property name="repoistoryFolder" value="${files.base.folder}"/>
+        <property name="appOperationTokens">
+        	<map>
+                <entry key="all_public" value="public" />
+                <entry key="example" value="example" />
+                <entry key="bettbio_ad" value="tiu4difo" />
+            </map>
+        </property>
     </bean>
 </beans>

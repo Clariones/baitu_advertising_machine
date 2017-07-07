@@ -1,7 +1,5 @@
 package com.skynet.mediaserver.app;
 
-import com.skynet.mediaserver.PipelineHandlerFactory;
-
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.codec.http.cors.CorsConfig;
 import io.netty.handler.codec.http.cors.CorsConfigBuilder;
