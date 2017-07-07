@@ -19,10 +19,13 @@ public class App
     		System.out.println(entry.getKey()+"="+ entry.getValue());
     	}
         System.out.println( "Starting POC http server....." );
+        String configFileName = "conf/spring.main.xml";
+        if (args != null || args.length > 0){
+        	configFileName = args[0].trim();
+        }
+        ApplicationContext context = new FileSystemXmlApplicationContext(configFileName);
         
-        ApplicationContext context = new FileSystemXmlApplicationContext("conf/spring.main.xml");
-        
-        HttpServer server = (HttpServer) context.getBean("nettyServer");
+        MediaServer server = (MediaServer) context.getBean("nettyServer");
         server.startWork();
     }
 }

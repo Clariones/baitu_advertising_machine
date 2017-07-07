@@ -88,12 +88,36 @@ public class FSMediaUtils {
 			filePath = filePath.substring(1);
 		}
 		Matcher m = ptnFSMediaInfo.matcher(filePath);
-		m.matches();
+		if (!m.matches()){
+			return null;
+		}
+		String fileName = m.group(5);
+//		if (fileName.matches("[fs]\\d+x\\d+_.*")){
+//			return null; // skip resized files
+//		}
 		data.setCategory(m.group(3));
 		data.setFileName(m.group(5));
 		data.setNeedAuth(m.group(1).equals("authed"));
 		data.setAppKey(m.group(2));
 		data.setMediaUri(filePath);
 		return data;
+	}
+	public static File calcSearchFrom(File baseFolder, boolean needAuth, String appKey, String category) {
+		StringBuffer sb = new StringBuffer();
+		if (needAuth){
+			sb.append("authed/");
+		}else{
+			sb.append("public/");
+		}
+		if (appKey != null) {
+			sb.append(appKey);
+		}else{
+			sb.append(MediaConstants.DEFAULT_PARAM_APPKEY);
+		}
+		if (category != null && !category.isEmpty()){
+			sb.append('/').append(category).append('/');
+		}
+		
+		return new File(baseFolder, sb.toString().replaceAll("/+", "/"));
 	}
 }

@@ -3,31 +3,52 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="nettyPipelineHanlderFactory" 
-		class="com.skynet.mediaserver.nettyhandler.DefaultHandlerFactory">
+	<bean id="handler_HttpRequestDecoder" class="io.netty.handler.codec.http.HttpRequestDecoder" scope="prototype"/>
+	<bean id="handler_HttpResponseEncoder" class="io.netty.handler.codec.http.HttpResponseEncoder" scope="prototype"/>
+	<bean id="handler_ChunkedWriteHandler" class="io.netty.handler.stream.ChunkedWriteHandler" scope="prototype"/>
+	
+	<bean id="BPHFactory" class="com.skynet.mediaserver.app.BasicPipelineHandlerFactory" abstract="true"/>
+	
+	<bean id="HttpServerInitializer" class="com.skynet.mediaserver.app.BasicHttpServerInitializer">
+		<property name="handlerFactories">
+			<list>
+				<bean parent="BPHFactory"><property name="handlerName" value="handler_HttpRequestDecoder"/></bean>
+				<bean parent="BPHFactory"><property name="handlerName" value="handler_HttpResponseEncoder"/></bean>
+				<bean class="com.skynet.mediaserver.app.CORSHandlerFactory"/>
+				<bean parent="BPHFactory"><property name="handlerName" value="handler_ChunkedWriteHandler"/></bean>
+				<bean parent="BPHFactory"><property name="handlerName" value="fileUploadHandler"/></bean>
+				<bean parent="BPHFactory"><property name="handlerName" value="helpHandler"/></bean>
+				<bean parent="BPHFactory"><property name="handlerName" value="fileSearHandler"/></bean>
+				<bean parent="BPHFactory"><property name="handlerName" value="publicDownloadHandler"/></bean>
+				<bean parent="BPHFactory"><property name="handlerName" value="publicDeleteHandler"/></bean>
+				<bean parent="BPHFactory"><property name="handlerName" value="notFoundHandler"/></bean>
+			</list>
+		</property>
 	</bean>
 	
-	<bean id="HttpServerInitializer" 
-		class="com.skynet.mediaserver.app.HttpServerInitializer">
-	</bean>
-	
-    <bean id="nettyServer" class="com.skynet.mediaserver.app.HttpServer">
-        <property name="port" value="8180"/>
+    <bean id="nettyServer" class="com.skynet.mediaserver.app.NettyHttpServer">
+        <property name="serverPort" value="${server.port}"/>
+        <property name="logLevel" value="${log.level}"/>
     </bean>
-    
-    <bean id="mediaSaver" class="com.skynet.mediaserver.mediasaver.SimpleFileSystemMediaSaver">
-        <property name="repoistoryFolder" value="/udisk/temp"/>
-    </bean>
-    <bean id="fileUploadHandler" class="com.skynet.mediaserver.nettyhandler.FileUploadHandler" scope="prototype">
-        <property name="mediaSaver" ref="mediaSaver"/>
-    </bean>
-    <bean id="commonFileGetHandler" class="com.skynet.mediaserver.nettyhandler.CommonFileGetHandler" scope="prototype">
+    <bean id="helpHandler" class="com.skynet.mediaserver.nettyhandler.HelpHandler" scope="prototype">
         <property name="baseFolder" value="www"/>
     </bean>
-    <bean id="fileDownloadHandler" class="com.skynet.mediaserver.nettyhandler.FileDownloadHandler" scope="prototype">
-        <property name="baseFolder" value="/udisk/temp/public"/>
+    <bean id="notFoundHandler" class="com.skynet.mediaserver.nettyhandler.NotFoundHandler" scope="prototype">
+    </bean>
+    
+    <bean id="fileUploadHandler" class="com.skynet.mediaserver.nettyhandler.FileUploadHandler" scope="prototype">
+        <property name="mediaSaver" ref="mediaResourceHandler"/>
+    </bean>
+    
+    <bean id="publicDownloadHandler" class="com.skynet.mediaserver.nettyhandler.PublicFileDownloadHandler" scope="prototype">
+        <property name="mediaSaver" ref="mediaResourceHandler"/>
+    </bean>
+    <bean id="publicDeleteHandler" class="com.skynet.mediaserver.nettyhandler.FileDeleteHandler" scope="prototype">
+        <property name="mediaSaver" ref="mediaResourceHandler"/>
     </bean>
     <bean id="fileSearHandler" class="com.skynet.mediaserver.nettyhandler.FileSearchHandler" scope="prototype">
-        <property name="baseFolder" value="/udisk/temp"/>
+        <property name="mediaSaver" ref="mediaResourceHandler"/>
     </bean>
 </beans>
+
+

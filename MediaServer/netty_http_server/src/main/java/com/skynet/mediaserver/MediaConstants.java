@@ -2,6 +2,7 @@ package com.skynet.mediaserver;
 
 public class MediaConstants {
 	// which app is using the media server. default is "all_public"
+	public static final String PARAM_TOKEN = "token";
 	public static final String PARAM_APPKEY = "appKey";
 	public static final String DEFAULT_PARAM_APPKEY = "all_public";
 	
@@ -25,9 +26,22 @@ public class MediaConstants {
 	public static final String PARAM_FILE = "fileInOS";
 	public static final String PARAM_FILE_Size = "fileSize";
 	
+	public static final String PARAM_SEARCH_KEY = "key";
+	public static final String PARAM_SIZE_WIDTH = "w";
+	public static final String PARAM_SIZE_HEIGHT = "h";
+	public static final String PARAM_SIZE_SCALE_TYPE = "scale";
+	public static final String PARAM_DELETE_SCOPE = "delete";
+	
 	// Returned status of this resource operation
 	public static final String RESULT_STATUS = "status";
 	
 	public static final String AJAX_REQUEST_POSTFIX=".ajax";
 	public static final String FROM_REQUEST_POSTFIX=".html";
+	
+	// resize method
+	public static final String RESIZE_METHOD_SCALE_TO_FIT = "fit";
+	public static final String RESIZE_METHOD_SCALE_TO_FILL = "fill";
+	public static final String DELETE_SCOPE_ALL = "all";
+	public static final String DELETE_SCOPE_SELF = "self";
+	public static final String CONTENT_TYPE_JSON = "application/json;charset=utf-8";
 }

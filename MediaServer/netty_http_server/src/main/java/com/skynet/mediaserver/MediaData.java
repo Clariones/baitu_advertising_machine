@@ -9,7 +9,7 @@ public class MediaData {
 	protected String resourceKey = null;
 	protected String comments= null;
 	protected String fileName= null;
-	protected InputStream contentStream;
+	protected transient InputStream contentStream;
 	protected File contentFile;
 	protected String appKey;
 	protected String mediaUri;
