@@ -5,5 +5,5 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"
        default-autowire="byName">
 
-
+	<!-- so far I don't use ES for search. Later, you can create your own mediaResourceHandler, and inject search modal here -->
 </beans>

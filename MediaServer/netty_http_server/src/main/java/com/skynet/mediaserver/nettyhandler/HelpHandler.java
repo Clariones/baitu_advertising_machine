@@ -3,10 +3,15 @@ package com.skynet.mediaserver.nettyhandler;
 import java.io.File;
 import java.util.logging.Level;
 
+import com.google.gson.Gson;
+import com.skynet.mediaserver.MediaConstants;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponseStatus;
 
 public class HelpHandler extends BasicHttpRequestHandler {
+	protected static final String VERSION = "v1.0.0.0";
 	protected static final String REQUEST_PATH_PREFIX = "/help/";
 	protected String baseFolder;
 	
@@ -42,6 +47,10 @@ public class HelpHandler extends BasicHttpRequestHandler {
 		String reqPath = calcRequestPath();
 		File tgtFile = getFileRealPath(reqPath);
 		logger().log(Level.INFO, "request for " + reqPath+"->"+tgtFile.getAbsolutePath());
+		if (reqPath.equals("version")){
+			super.writeStringResponse(ctx, HttpResponseStatus.OK, new Gson().toJson(VERSION), MediaConstants.CONTENT_TYPE_JSON, false);
+			return;
+		}
 		sendResponseFile(ctx, tgtFile);
 	}
 

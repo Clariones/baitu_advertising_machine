@@ -20,7 +20,7 @@ public class App
     	}
         System.out.println( "Starting POC http server....." );
         String configFileName = "conf/spring.main.xml";
-        if (args != null || args.length > 0){
+        if (args != null && args.length > 0){
         	configFileName = args[0].trim();
         }
         ApplicationContext context = new FileSystemXmlApplicationContext(configFileName);
