@@ -348,6 +348,9 @@ public class AdPlayerStatus {
     }
 
     protected void refreshOfflinePackage() {
+        if (!Constants.ENABLE_DOWNLOAD){
+            return;
+        }
         // check if need download offline package
         if (!isNewOfflinePackage()){
             return;

@@ -27,7 +27,12 @@ public class Constants {
     public static final String STATIC_CONTENT_FILE = "index.html";
 
 
-    public static final String START_UP_SERVER_ADDRESS = "http://www.bettbio.com/bettbio_ad/devices_v1/pc_iframe/data/startup/info.json";
+    // this is for 百图
+    //public static final String START_UP_SERVER_ADDRESS = "http://www.bettbio.com/bettbio_ad/devices_v1/pc_iframe/data/startup/info.json";
+    // this is for SkyNet
+    public static final String START_UP_SERVER_ADDRESS = "http://119.23.65.188:8080/static/admachine/startup/data/info.json";
+
+    public static final boolean ENABLE_DOWNLOAD = true;
 
     public static final long FORCE_RELOAD_TIME_PERIOD = 12 * TIME_1_HOUR;
 
