@@ -94,7 +94,7 @@ public class DownloadUtils {
                 cursor.moveToFirst();
                 int idx = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI);
                 String uriString = cursor.getString(idx);
-                handler.onReceive(ctxt, intent, this, Uri.parse(uriString));
+                handler.onReceive(ctxt, intent, this, uriString==null?null:Uri.parse(uriString));
             }
         };
         //register receiver for when .apk download is compete

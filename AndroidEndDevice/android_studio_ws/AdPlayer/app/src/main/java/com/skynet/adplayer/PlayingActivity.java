@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -79,6 +80,7 @@ public class PlayingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         me = this;
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(showFullScreenFlag);
@@ -231,6 +233,11 @@ public class PlayingActivity extends AppCompatActivity {
             private long downloadId;
             @Override
             public void onReceive(Context ctxt, Intent intent, BroadcastReceiver broadcastReceiver, Uri uri) {
+                if ( uri == null){
+                    unregisterReceiver(broadcastReceiver);
+                    onOfflineDownloaded(null, offlinePackageUrl, false);
+                    return;
+                }
                 DownloadManager manager = (DownloadManager) ctxt.getSystemService(Context.DOWNLOAD_SERVICE);
                 DownloadManager.Query q = new DownloadManager.Query();
                 q.setFilterById(downloadId);
@@ -452,6 +459,11 @@ public class PlayingActivity extends AppCompatActivity {
 
                     @Override
                     public void onReceive(Context ctxt, Intent intent, BroadcastReceiver broadcastReceiver, Uri downloadTargetUri) {
+                        if (downloadTargetUri == null){
+                            Toast.makeText(PlayingActivity.this, "下载新版本失败", Toast.LENGTH_LONG).show();
+                            unregisterReceiver(broadcastReceiver);
+                            return;
+                        }
                         Intent install = new Intent(Intent.ACTION_VIEW);
                         install.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         install.setDataAndType(downloadTargetUri, "application/vnd.android.package-archive");
