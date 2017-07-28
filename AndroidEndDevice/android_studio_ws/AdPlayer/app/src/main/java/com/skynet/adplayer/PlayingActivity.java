@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -36,6 +37,7 @@ import com.skynet.adplayer.utils.UpgradeUtils;
 import com.skynet.adplayer.utils.ZipUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,6 +48,7 @@ public class PlayingActivity extends AppCompatActivity {
     public static PlayingActivity me;
     private Button mBtnSettigs;
     private Button mBtnUpgrade;
+    private Button mBtnTest;
     private Button mBtnTestOffline;
     private AdWebView mWebView;
     private ProgressBar mProgressInfo;
@@ -84,14 +87,70 @@ public class PlayingActivity extends AppCompatActivity {
         decorView.setSystemUiVisibility(showFullScreenFlag);
 
         setContentView(R.layout.activity_playing);
-        publicHandler = new Handler() {
-            // 处理子线程给我们发送的消息。
-            @Override
-            public void handleMessage(Message msg) {
-                handleStartupMessage(msg);
-            }
-        };
 
+        initMessageHandler();
+
+        initOfflinePackage();
+
+        initViewComponents();
+
+        initWebView();
+
+        startPollingTask();
+    }
+
+    private void initViewComponents() {
+        mProgressInfo = (ProgressBar) findViewById(R.id.bar_infoProgress);
+        mTxtInfoTitle= (TextView) findViewById(R.id.txt_infoTitle);
+        mLayoutInfoBar = findViewById(R.id.info_bar);
+        mLayoutInfoBar.setVisibility(View.GONE);
+
+        mBtnTest = (Button) findViewById(R.id.btnTest);
+        mBtnTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PowerManager pManager=(PowerManager) getSystemService(Context.POWER_SERVICE);
+                pManager.reboot(null);
+//                String cmd = "su -c reboot";
+//                try{
+//                    Runtime.getRuntime().exec(cmd);
+//                }catch(IOException e){
+//                    e.printStackTrace();
+//                }
+            }
+        });
+
+        mBtnUpgrade = (Button) findViewById(R.id.btnUpgrade);
+        mBtnUpgrade.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doUpgrade();
+            }
+        });
+
+        mBtnSettigs = (Button) findViewById(R.id.btnSettings);
+        mBtnSettigs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doSettings();
+            }
+        });
+    }
+
+    private void startPollingTask() {
+        Intent intent = new Intent(this, LongRunningService.class);
+        startService(intent);
+    }
+
+    private void initWebView() {
+        mWebView = (AdWebView) findViewById(R.id.webView);
+        mWebView.setWebViewClient(new WebViewClient());
+
+        mWebView.addJavascriptInterface(adPlayerInfo, "playerInfo");
+        mWebView.loadUrl("file:///android_asset/www/loading.html");
+    }
+
+    private void initOfflinePackage() {
         File offlineBase = getOfflinePackageBaseFolder();
         if (!offlineBase.isDirectory()) {
             FileUtils.deleteAll(offlineBase);
@@ -104,6 +163,7 @@ public class PlayingActivity extends AppCompatActivity {
             }
         }
         adPlayerInfo = initPlayInfo();
+
         adPlayerStatus = AdPlayerStatus.createInstance(new AdPlayerStatus.AdPlayerStatusChangeListener(){
             public void onCreate(AdPlayerStatus result) {
                 Log.i(Constants.LOG_TAG, "AdPlayerStatus was created");
@@ -126,6 +186,7 @@ public class PlayingActivity extends AppCompatActivity {
                 downLoadOnfflinePackage(offlinePackageUrl, status);
             }
         });
+
         String pckName = checkExistedOfflinePackage();
         if (pckName != null){
             Log.i(Constants.LOG_TAG, "Found existed offline package " + pckName);
@@ -134,36 +195,16 @@ public class PlayingActivity extends AppCompatActivity {
         }else{
             Log.i(Constants.LOG_TAG, "Cannot found any available offline package");
         }
+    }
 
-        mProgressInfo = (ProgressBar) findViewById(R.id.bar_infoProgress);
-        mTxtInfoTitle= (TextView) findViewById(R.id.txt_infoTitle);
-        mLayoutInfoBar = findViewById(R.id.info_bar);
-        mLayoutInfoBar.setVisibility(View.GONE);
-
-        mBtnUpgrade = (Button) findViewById(R.id.btnUpgrade);
-        mBtnUpgrade.setOnClickListener(new View.OnClickListener() {
+    private void initMessageHandler() {
+        publicHandler = new Handler() {
+            // 处理子线程给我们发送的消息。
             @Override
-            public void onClick(View v) {
-                doUpgrade();
+            public void handleMessage(Message msg) {
+                handleStartupMessage(msg);
             }
-        });
-
-        mBtnSettigs = (Button) findViewById(R.id.btnSettings);
-        mBtnSettigs.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                doSettings();
-            }
-        });
-
-        mWebView = (AdWebView) findViewById(R.id.webView);
-        mWebView.setWebViewClient(new WebViewClient());
-
-        mWebView.addJavascriptInterface(adPlayerInfo, "playerInfo");
-        //mWebView.loadUrl("http://192.168.1.101:8880/temp/public/bettbio_ad/resource/media/148/161/51/56/%E6%AF%95%E4%B8%9A%E5%95%A6.jpg");
-        mWebView.loadUrl("file:///android_asset/www/loading.html");
-        Intent intent = new Intent(this, LongRunningService.class);
-        startService(intent);
+        };
     }
 
     public void handleStartupMessage(Message msg) {
@@ -348,7 +389,7 @@ public class PlayingActivity extends AppCompatActivity {
                     case RELOAD_ONLINE:
                         mWebView.loadUrl("about:blank");
                         // TODO debug
-                        //String url = "http://192.168.1.101:8080/naf/playListManager/retrievePlayList/";
+//                        String url = "http://192.168.1.101:8080/naf/playListManager/retrievePlayList/";
                         String url = status.getStartUpUrl();
 
                         mWebView.loadUrl(url);
@@ -530,7 +571,7 @@ public class PlayingActivity extends AppCompatActivity {
 
         MotionEvent.PointerCoords point = new MotionEvent.PointerCoords();
         event.getPointerCoords(0, point);
-        Log.i(Constants.LOG_TAG, "Point " + point.x + "," + point.y);
+        //Log.i(Constants.LOG_TAG, "Point " + point.x + "," + point.y);
 
         if (point.y > 200) {
             hideTitleBar();
@@ -550,7 +591,7 @@ public class PlayingActivity extends AppCompatActivity {
 
         MotionEvent.PointerCoords point = new MotionEvent.PointerCoords();
         event.getPointerCoords(0, point);
-        Log.i(Constants.LOG_TAG, "Point " + point.x + "," + point.y);
+        //Log.i(Constants.LOG_TAG, "Point " + point.x + "," + point.y);
 
         if (point.y < 100) {
             View barView = findViewById(R.id.title_bar);
