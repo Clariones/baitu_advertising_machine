@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import com.skynet.adplayer.BuildConfig;
@@ -12,7 +13,17 @@ import com.skynet.adplayer.BuildConfig;
  * Created by clariones on 6/20/17.
  */
 public class AdWebView extends WebView{
+    protected String cacheFolder;
 
+    public String getCacheFolder() {
+        return cacheFolder;
+    }
+
+    public void setCacheFolder(String cacheFolder) {
+        this.cacheFolder = cacheFolder;
+        this.getSettings().setAppCachePath(cacheFolder);
+        this.getSettings().setAppCacheMaxSize(20*1024*1024);
+    }
 
     public AdWebView(Context context) {
         super(context);
@@ -54,7 +65,12 @@ public class AdWebView extends WebView{
         this.getSettings().setJavaScriptEnabled(true);
         this.getSettings().setBlockNetworkImage(false);
         this.getSettings().setUseWideViewPort(true);
+
         this.getSettings().setAppCacheEnabled(true);
+        this.getSettings().setDomStorageEnabled(true);
+        this.getSettings().setAllowFileAccess(true);
+        this.getSettings().setAppCacheEnabled(true);
+        this.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
     }
     public AdWebView(Context context, AttributeSet attrs, int defStyleAttr, boolean privateBrowsing) {
         super(context, attrs, defStyleAttr, privateBrowsing);

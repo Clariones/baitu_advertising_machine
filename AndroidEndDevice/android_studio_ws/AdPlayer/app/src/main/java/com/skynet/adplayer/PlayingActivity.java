@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -52,6 +53,7 @@ public class PlayingActivity extends AppCompatActivity {
     private ProgressBar mProgressInfo;
     private TextView mTxtInfoTitle;
     private View mLayoutInfoBar;
+    private View mFlagOffline;
 
     private boolean upgrading = false;
     private int showFullScreenFlag = 0
@@ -142,6 +144,7 @@ public class PlayingActivity extends AppCompatActivity {
         mLayoutInfoBar = findViewById(R.id.info_bar);
         mLayoutInfoBar.setVisibility(View.GONE);
 
+        mFlagOffline = findViewById(R.id.flag_offline);
         mBtnUpgrade = (Button) findViewById(R.id.btnUpgrade);
         mBtnUpgrade.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -159,6 +162,8 @@ public class PlayingActivity extends AppCompatActivity {
         });
 
         mWebView = (AdWebView) findViewById(R.id.webView);
+        String appCacheDir = this.getApplicationContext().getDir("cache", Context.MODE_PRIVATE).getPath();
+        mWebView.setCacheFolder(appCacheDir);
         mWebView.setWebViewClient(new WebViewClient());
 
         mWebView.addJavascriptInterface(adPlayerInfo, "playerInfo");
@@ -346,18 +351,25 @@ public class PlayingActivity extends AppCompatActivity {
             public void run() {
                 switch(action){
                     case RELOAD_OFFLINE:
+                        /**
                         File targetFile = new File(getOfflinePackageBaseFolder(), status.getCurOfflinePackageName()+"/index.html");
                         Uri uri = Uri.parse("file://" + targetFile.getAbsolutePath());
                         mWebView.loadUrl("about:blank");
                         mWebView.loadUrl(uri.toString());
                         deleteOtherOfflinePackage(status.getCurOfflinePackageName());
+                         **/
+                        String orgurl="http://119.23.65.188:8080/bettbio_ad/playListManager/retrievePlayList/";
+                        mFlagOffline.setVisibility(View.VISIBLE);
+                        mWebView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+                        mWebView.loadUrl(orgurl);
                         break;
                     case RELOAD_ONLINE:
-                        mWebView.loadUrl("about:blank");
+                        //mWebView.loadUrl("about:blank");
                         // TODO debug
                         //String url = "http://192.168.1.101:8080/naf/playListManager/retrievePlayList/";
                         String url = status.getStartUpUrl();
-
+                        mFlagOffline.setVisibility(View.GONE);
+                        mWebView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
                         mWebView.loadUrl(url);
 
                         break;
