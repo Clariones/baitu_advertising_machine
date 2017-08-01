@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import com.skynet.adplayer.BuildConfig;
@@ -55,6 +56,16 @@ public class AdWebView extends WebView{
         this.getSettings().setBlockNetworkImage(false);
         this.getSettings().setUseWideViewPort(true);
         this.getSettings().setAppCacheEnabled(true);
+
+
+
+        this.getSettings().setDomStorageEnabled(true);
+        //this.getSettings().setAppCacheMaxSize(1024*1024*8);//设置缓冲大小，我设的是8M
+        //String appCacheDir = this.getApplicationContext().getDir("cache", Context.MODE_PRIVATE).getPath();
+        //webseting.setAppCachePath(appCacheDir);
+        this.getSettings().setAllowFileAccess(true);
+        this.getSettings().setAppCacheEnabled(true);
+        this.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
     }
     public AdWebView(Context context, AttributeSet attrs, int defStyleAttr, boolean privateBrowsing) {
         super(context, attrs, defStyleAttr, privateBrowsing);

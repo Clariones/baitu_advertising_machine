@@ -4,6 +4,7 @@ import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -13,10 +14,12 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -54,6 +57,7 @@ public class PlayingActivity extends AppCompatActivity {
     private ProgressBar mProgressInfo;
     private TextView mTxtInfoTitle;
     private View mLayoutInfoBar;
+    private View mOfflineFlag;
 
     private boolean upgrading = false;
     private int showFullScreenFlag = 0
@@ -135,6 +139,8 @@ public class PlayingActivity extends AppCompatActivity {
                 doSettings();
             }
         });
+
+        mOfflineFlag = findViewById(R.id.offline_flag);
     }
 
     private void startPollingTask() {
@@ -145,9 +151,19 @@ public class PlayingActivity extends AppCompatActivity {
     private void initWebView() {
         mWebView = (AdWebView) findViewById(R.id.webView);
         mWebView.setWebViewClient(new WebViewClient());
+        String appCacheDir = this.getApplicationContext().getDir("cache", Context.MODE_PRIVATE).getPath();
+        mWebView.getSettings().setAppCachePath(appCacheDir);
 
         mWebView.addJavascriptInterface(adPlayerInfo, "playerInfo");
-        mWebView.loadUrl("file:///android_asset/www/loading.html");
+        //mWebView.loadUrl("file:///android_asset/www/loading.html");
+
+        String url = loadContentUrl();
+        if (url == null || url.isEmpty()){
+            mWebView.loadUrl("file:///android_asset/www/loading.html");
+        }else{
+            mWebView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+            mWebView.loadUrl(url);
+        }
     }
 
     private void initOfflinePackage() {
@@ -378,20 +394,39 @@ public class PlayingActivity extends AppCompatActivity {
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                String url;
                 switch(action){
                     case RELOAD_OFFLINE:
-                        File targetFile = new File(getOfflinePackageBaseFolder(), status.getCurOfflinePackageName()+"/index.html");
-                        Uri uri = Uri.parse("file://" + targetFile.getAbsolutePath());
-                        mWebView.loadUrl("about:blank");
-                        mWebView.loadUrl(uri.toString());
-                        deleteOtherOfflinePackage(status.getCurOfflinePackageName());
+//                        File targetFile = new File(getOfflinePackageBaseFolder(), status.getCurOfflinePackageName()+"/index.html");
+//                        Uri uri = Uri.parse("file://" + targetFile.getAbsolutePath());
+//                        mWebView.loadUrl("about:blank");
+//                        mWebView.loadUrl(uri.toString());
+//                        deleteOtherOfflinePackage(status.getCurOfflinePackageName());
+                        url = loadContentUrl();
+                        if (url == null || url.isEmpty()){
+                            File targetFile = new File(getOfflinePackageBaseFolder(), status.getCurOfflinePackageName()+"/index.html");
+                            if (!targetFile.exists()){
+                                mWebView.loadUrl("file:///android_asset/www/loading.html");
+                            }else {
+                                Uri uri = Uri.parse("file://" + targetFile.getAbsolutePath());
+                                mWebView.loadUrl(uri.toString());
+                                deleteOtherOfflinePackage(status.getCurOfflinePackageName());
+                            }
+                        }else{
+                            mOfflineFlag.setVisibility(View.VISIBLE);
+                            mWebView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ONLY);
+                            mWebView.loadUrl(url);
+
+                        }
                         break;
                     case RELOAD_ONLINE:
-                        mWebView.loadUrl("about:blank");
+                        //mWebView.loadUrl("about:blank");
                         // TODO debug
-//                        String url = "http://192.168.1.101:8080/naf/playListManager/retrievePlayList/";
-                        String url = status.getStartUpUrl();
-
+                        //url = "http://192.168.1.101:8080/naf/playListManager/retrievePlayList/";
+                        url = status.getStartUpUrl();
+                        saveContentUrl(url);
+                        mOfflineFlag.setVisibility(View.GONE);
+                        mWebView.getSettings().setCacheMode(WebSettings.LOAD_DEFAULT);
                         mWebView.loadUrl(url);
 
                         break;
@@ -401,6 +436,17 @@ public class PlayingActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private String loadContentUrl() {
+        SharedPreferences prefMng = PreferenceManager.getDefaultSharedPreferences(this);
+        String contentUrl = prefMng.getString(Constants.PREF_KEY_CONTENT_URL, null);
+        return contentUrl;
+    }
+
+    private void saveContentUrl(String url) {
+        SharedPreferences prefMng = PreferenceManager.getDefaultSharedPreferences(this);
+        prefMng.edit().putString(Constants.PREF_KEY_CONTENT_URL, url).commit();
     }
 
     private void deleteOtherOfflinePackage(String curOfflinePackageName) {

@@ -78,7 +78,14 @@
             android:layout_weight="100" />
     </LinearLayout>
 
-
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OFFLINE"
+        android:id="@+id/offline_flag"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:textColor="#ff0008" />
 
 
 </RelativeLayout>

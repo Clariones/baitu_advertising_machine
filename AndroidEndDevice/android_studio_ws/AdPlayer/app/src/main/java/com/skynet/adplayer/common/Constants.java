@@ -33,4 +33,5 @@ public class Constants {
 
     public static final String DEPLOY_DONE_FILE = "deploy.done";
 
+    public static final String PREF_KEY_CONTENT_URL = "pref_key_content_url";
 }
