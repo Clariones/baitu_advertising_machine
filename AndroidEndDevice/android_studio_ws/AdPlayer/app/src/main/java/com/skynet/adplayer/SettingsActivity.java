@@ -8,6 +8,8 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import com.skynet.adplayer.utils.SystemPropertyUtils;
+
 public class SettingsActivity extends AppCompatActivity {    @Override
 protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -37,7 +39,7 @@ protected void onCreate(Bundle savedInstanceState) {
         private void initSummaries() {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
             updateStringSummary(prefs, "pref_key_model_name", Build.MANUFACTURER+" "+Build.MODEL);
-            updateStringSummary(prefs, "pref_key_serial_number", Build.SERIAL);
+            updateStringSummary(prefs, "pref_key_serial_number", SystemPropertyUtils.getSerialNo());
             updateStringSummary(prefs, "pref_key_apk_version", BuildConfig.VERSION_NAME);
         }
 

@@ -20,8 +20,8 @@
     has
 
     <uses-sdk
-        android:minSdkVersion="11"
-        android:targetSdkVersion="19" />
+        android:minSdkVersion="17"
+        android:targetSdkVersion="23" />
 
     <application
         android:allowBackup="true"

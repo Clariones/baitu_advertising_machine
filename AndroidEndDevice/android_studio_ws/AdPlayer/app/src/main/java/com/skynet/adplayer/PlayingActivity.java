@@ -36,11 +36,11 @@ import com.skynet.adplayer.component.AdWebView;
 import com.skynet.adplayer.service.LongRunningService;
 import com.skynet.adplayer.utils.DownloadUtils;
 import com.skynet.adplayer.utils.FileUtils;
+import com.skynet.adplayer.utils.SystemPropertyUtils;
 import com.skynet.adplayer.utils.UpgradeUtils;
 import com.skynet.adplayer.utils.ZipUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,7 +75,7 @@ public class PlayingActivity extends AppCompatActivity {
         info.setVersion(BuildConfig.VERSION_NAME);
         info.setManufacturer(Build.MANUFACTURER);
         info.setModelName(Build.MODEL);
-        info.setSerialNumber(Build.SERIAL);
+        info.setSerialNumber(SystemPropertyUtils.getSerialNo());
 //        info.setServerUrlPrefix(Constants.SERVER_URL_PREFIX);
         return info;
     }
@@ -99,8 +99,8 @@ public class PlayingActivity extends AppCompatActivity {
         initViewComponents();
 
         initWebView();
-
-        startPollingTask();
+        mWebView.loadUrl("file:///android_asset/www/test.html");
+        //startPollingTask();
     }
 
     private void initViewComponents() {

@@ -8,6 +8,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import com.skynet.adplayer.BuildConfig;
+import com.skynet.adplayer.utils.SystemPropertyUtils;
 
 /**
  * Created by clariones on 6/20/17.
@@ -42,7 +43,7 @@ public class AdWebView extends WebView{
         StringBuilder sb = new StringBuilder();
         sb.append(Build.MANUFACTURER);
         sb.append("/").append(Build.MODEL);
-        sb.append("/").append(Build.SERIAL);
+        sb.append("/").append(SystemPropertyUtils.getSerialNo());
         sb.append("/").append(BuildConfig.VERSION_NAME);
 
         return sb.toString();
@@ -71,4 +72,6 @@ public class AdWebView extends WebView{
         super(context, attrs, defStyleAttr, privateBrowsing);
         prepareSettings();
     }
+
+
 }
