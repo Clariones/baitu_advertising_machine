@@ -74,7 +74,7 @@ public class PlayingActivity extends AppCompatActivity {
         AdPlayerInfo info = new AdPlayerInfo();
         info.setVersion(BuildConfig.VERSION_NAME);
         info.setManufacturer(Build.MANUFACTURER);
-        info.setModelName(Build.MODEL);
+        info.setModelName(SystemPropertyUtils.getModel());
         info.setSerialNumber(SystemPropertyUtils.getSerialNo());
 //        info.setServerUrlPrefix(Constants.SERVER_URL_PREFIX);
         return info;
@@ -99,8 +99,8 @@ public class PlayingActivity extends AppCompatActivity {
         initViewComponents();
 
         initWebView();
-        mWebView.loadUrl("file:///android_asset/www/test.html");
-        //startPollingTask();
+        //mWebView.loadUrl("file:///android_asset/www/test.html");
+        startPollingTask();
     }
 
     private void initViewComponents() {

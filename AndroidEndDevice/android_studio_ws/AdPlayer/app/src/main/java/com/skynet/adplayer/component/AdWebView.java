@@ -42,7 +42,7 @@ public class AdWebView extends WebView{
 
         StringBuilder sb = new StringBuilder();
         sb.append(Build.MANUFACTURER);
-        sb.append("/").append(Build.MODEL);
+        sb.append("/").append(SystemPropertyUtils.getModel());
         sb.append("/").append(SystemPropertyUtils.getSerialNo());
         sb.append("/").append(BuildConfig.VERSION_NAME);
 
