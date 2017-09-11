@@ -15,15 +15,46 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true" />
 
-    <LinearLayout
-        android:id="@+id/title_bar"
+    <HorizontalScrollView
+        android:id="@+id/scrollTestLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
+        android:scrollbars="none"
+        android:paddingTop="0dp"
+        android:visibility="visible"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="这是一个希望滚动的文本条啊文本条"
+            android:id="@+id/textScrolling"
+            android:textSize="@dimen/sroll_text_size"
+            android:textIsSelectable="true"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textColor="#FFFFFFFF"
+            android:layout_alignParentTop="true"/>
+    </HorizontalScrollView>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OFFLINE"
+        android:id="@+id/offline_flag"
+        android:layout_below="@+id/scrollTestLayout"
+        android:layout_alignParentStart="true"
+        android:textColor="#ff0008" />
+
+    <LinearLayout
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:paddingTop="0dp"
         android:visibility="gone"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_below="@+id/scrollTestLayout"
+        android:layout_alignParentStart="true">
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -78,14 +109,9 @@
             android:layout_weight="100" />
     </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="OFFLINE"
-        android:id="@+id/offline_flag"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:textColor="#ff0008" />
+
+
+
 
 
 </RelativeLayout>

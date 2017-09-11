@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -16,13 +18,19 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,6 +66,10 @@ public class PlayingActivity extends AppCompatActivity {
     private TextView mTxtInfoTitle;
     private View mLayoutInfoBar;
     private View mOfflineFlag;
+    private HorizontalScrollView mScrollLine;
+    private boolean mRunning;
+    private int mScrollingEnd=0;
+    private int mCurX = 0;
 
     private boolean upgrading = false;
     private int showFullScreenFlag = 0
@@ -69,6 +81,7 @@ public class PlayingActivity extends AppCompatActivity {
             | View.SYSTEM_UI_FLAG_IMMERSIVE;
     private AdPlayerInfo adPlayerInfo;
     private AdPlayerStatus adPlayerStatus;
+    private Thread mThread;
 
     private AdPlayerInfo initPlayInfo() {
         AdPlayerInfo info = new AdPlayerInfo();
@@ -101,6 +114,77 @@ public class PlayingActivity extends AppCompatActivity {
         initWebView();
         //mWebView.loadUrl("file:///android_asset/www/test.html");
         startPollingTask();
+        startScollingTask();
+    }
+
+    private void startScollingTask() {
+        mScrollLine.scrollTo(0,0);
+        mRunning = true;
+        mCurX = 0;
+        TextView txtView = (TextView) findViewById(R.id.textScrolling);
+        Paint paint = txtView.getPaint();
+        float textLength = paint.measureText(Constants.TEXT_SROLLING);
+        Log.i("===================", "textLength="+textLength);
+        WindowManager wm = this.getWindowManager();
+        int scrollViewWidth =wm.getDefaultDisplay().getWidth();
+        Log.i("===================", "scrollViewWidth="+scrollViewWidth);
+
+        String contentStr = Constants.TEXT_SROLLING;
+//        float width = 0;
+//        while(width < (textLength+scrollViewWidth)){
+//            contentStr += Constants.TEXT_SROLLING;
+//            width += textLength;
+//        }
+        Spannable spannable = new SpannableString(contentStr);
+        BackgroundColorSpan backgroundColorSpan = new BackgroundColorSpan(Color.argb(255, 255,255,255));
+        spannable.setSpan(backgroundColorSpan, 0, contentStr.length()-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        txtView.setTextColor(Color.rgb(0,0,0));
+
+        txtView.setText(spannable);
+
+
+
+
+
+        txtView.setMinWidth((int) (scrollViewWidth+scrollViewWidth+textLength));
+//        mScrollLine.setMinimumWidth((int) (scrollViewWidth+scrollViewWidth+textLength+10));
+
+        FrameLayout.LayoutParams layParam = (FrameLayout.LayoutParams) txtView.getLayoutParams();
+        layParam.setMarginStart(scrollViewWidth);
+        layParam.width = (int) (textLength+5);
+        txtView.setLayoutParams(layParam);
+
+        mScrollingEnd = (int) (scrollViewWidth + textLength);
+
+        mThread = new Thread(){
+            public void run() {
+                while(mRunning) {
+                    try {
+                        Thread.sleep(50);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateScrolling();
+                            }
+                        });
+                    } catch (InterruptedException e) {
+
+                    }
+                }
+
+            }
+        };
+        mThread.start();
+     }
+
+    private void updateScrolling() {
+        if (mCurX < mScrollingEnd){
+            mCurX += 2;
+        }else{
+            mCurX = 0;
+        }
+//        Log.i("===================", "X="+mCurX+",in " +mScrollingEnd);
+        mScrollLine.scrollTo(mCurX, 0);
     }
 
     private void initViewComponents() {
@@ -108,6 +192,7 @@ public class PlayingActivity extends AppCompatActivity {
         mTxtInfoTitle= (TextView) findViewById(R.id.txt_infoTitle);
         mLayoutInfoBar = findViewById(R.id.info_bar);
         mLayoutInfoBar.setVisibility(View.GONE);
+        mScrollLine = (HorizontalScrollView) findViewById(R.id.scrollTestLayout);
 
         mBtnTest = (Button) findViewById(R.id.btnTest);
         mBtnTest.setOnClickListener(new View.OnClickListener() {
@@ -467,6 +552,15 @@ public class PlayingActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mRunning = false;
+        if (mThread != null){
+            mThread.interrupt();
+            try {
+                mThread.join();
+            } catch (InterruptedException e) {
+
+            }
+        }
         mWebView.destroy();
         Intent intent = new Intent(this, LongRunningService.class);
         stopService(intent);
@@ -639,7 +733,7 @@ public class PlayingActivity extends AppCompatActivity {
         event.getPointerCoords(0, point);
         //Log.i(Constants.LOG_TAG, "Point " + point.x + "," + point.y);
 
-        if (point.y < 100) {
+        if (point.y < 200) {
             View barView = findViewById(R.id.title_bar);
             barView.setVisibility(View.VISIBLE);
         }

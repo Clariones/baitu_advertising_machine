@@ -26,12 +26,16 @@ public class Constants {
     public static final String STATIC_CONTENT_FOLDER = "static";
     public static final String STATIC_CONTENT_FILE = "index.html";
 
-
+    // for product
     public static final String START_UP_SERVER_ADDRESS = "http://www.bettbio.com/bettbio_ad/devices_v1/pc_iframe/data/startup/info.json";
+    // for test
+    //public static final String START_UP_SERVER_ADDRESS = "http://www.bettbio.com/bettbio_ad/devices_v1/pc_iframe/data/startup/info_testenv.json";
 
     public static final long FORCE_RELOAD_TIME_PERIOD = 12 * TIME_1_HOUR;
 
     public static final String DEPLOY_DONE_FILE = "deploy.done";
 
     public static final String PREF_KEY_CONTENT_URL = "pref_key_content_url";
+
+    public static final String TEXT_SROLLING = "广告投放服务热线：021-61552739 15221370265 ";
 }
