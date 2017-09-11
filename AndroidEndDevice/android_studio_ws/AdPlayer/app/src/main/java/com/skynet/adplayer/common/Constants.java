@@ -38,4 +38,9 @@ public class Constants {
     public static final String PREF_KEY_CONTENT_URL = "pref_key_content_url";
 
     public static final String TEXT_SROLLING = "广告投放服务热线：021-61552739 15221370265 ";
+    public static final String TEMP_FILE_POSTFIX = ".tmp";
+
+    public static final String AD_CONTENT_TYPE_INTRA_IMAGE = "intra_image";
+    public static final String AD_CONTENT_TYPE_CMC_IMAGE = "cmc_image";
+    public static final String AD_CONTENT_FILE_TYPE_IMAGE = "image";
 }

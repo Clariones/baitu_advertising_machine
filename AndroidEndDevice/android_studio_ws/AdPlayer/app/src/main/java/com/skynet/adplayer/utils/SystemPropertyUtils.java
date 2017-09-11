@@ -3,6 +3,8 @@ package com.skynet.adplayer.utils;
 import android.os.Build;
 import android.os.Environment;
 
+import com.skynet.adplayer.BuildConfig;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.lang.reflect.Method;
@@ -78,5 +80,19 @@ public class SystemPropertyUtils {
         }catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+    public static String getVersion(){
+        return BuildConfig.VERSION_NAME;
+    }
+
+    public static String getDeviceUserAgentString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(Build.MANUFACTURER);
+        sb.append("/").append(getModel());
+        sb.append("/").append(getSerialNo());
+        sb.append("/").append(getVersion());
+
+        return sb.toString();
     }
 }
