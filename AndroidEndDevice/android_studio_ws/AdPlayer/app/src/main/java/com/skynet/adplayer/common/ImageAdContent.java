@@ -2,16 +2,20 @@ package com.skynet.adplayer.common;
 
 import com.skynet.adplayer.activities.MainActivity;
 
-public class ImageAdContent extends BaseAdContent {
-    private String contentFileName;
-    private int playDuration;
+import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 
-    public void setContentFileName(String contentFileName) {
-        this.contentFileName = contentFileName;
+public class ImageAdContent extends BaseAdContent {
+    private int playDuration;
+    private File ImageFile;
+
+    public File getImageFile() {
+        return ImageFile;
     }
 
-    public String getContentFileName() {
-        return contentFileName;
+    public void setImageFile(File imageFile) {
+        ImageFile = imageFile;
     }
 
     public void setPlayDuration(int playDuration) {
@@ -24,6 +28,21 @@ public class ImageAdContent extends BaseAdContent {
 
 
     public void startToPlay(MainActivity mainActivity) {
+        getMainActivity().showPicture(getImageFile());
+        getMainActivity().updateBottomStatues("标题：" + getTitle(), null, true);
+        long waitTime = getPlayDuration() * 1000l;
+        new Timer().schedule(new TimerTask(){
 
+            @Override
+            public void run() {
+                whenPlayFinished();
+            }
+        }, waitTime);
+    }
+
+    private void whenPlayFinished() {
+        synchronized (this){
+            notifyAll();
+        }
     }
 }

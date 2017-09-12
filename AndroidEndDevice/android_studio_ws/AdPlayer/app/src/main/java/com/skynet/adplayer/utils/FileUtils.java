@@ -1,5 +1,7 @@
 package com.skynet.adplayer.utils;
 
+import android.util.Log;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skynet.adplayer.common.AdMachinePageContent;
@@ -8,6 +10,7 @@ import com.skynet.adplayer.common.Constants;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * Created by clariones on 6/22/17.
@@ -55,5 +58,20 @@ public class FileUtils {
             return "unkown";
         }
         return imageUri.substring(pos+1);
+    }
+
+    public static String calcCachedPlayListFileName() {
+        return String.format("%s_%s.json", "playlist", Constants.playListDateFormater.format(new Date()));
+    }
+
+    public static void renameFileByRemoveTempPostfix(File file) {
+        String orgFileName = file.getName();
+        String newFileName = orgFileName.substring(0, orgFileName.length() - Constants.TEMP_FILE_POSTFIX.length() + 1);
+        boolean  done = file.renameTo(new File(file.getParentFile(), newFileName));
+        if (!done){
+            Log.e("RENAME_TEMP_FILE", "failed to rename file " + file.getAbsolutePath() + " to " + newFileName);
+        }else{
+            Log.e("RENAME_TEMP_FILE", "successful to rename file " + file.getAbsolutePath() + " to " + newFileName);
+        }
     }
 }

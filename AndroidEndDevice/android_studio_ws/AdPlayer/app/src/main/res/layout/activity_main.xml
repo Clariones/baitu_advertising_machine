@@ -9,6 +9,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.skynet.adplayer.activities.MainActivity">
 
+    <!-- static text display layout -->
     <RelativeLayout
         android:id="@+id/static_text_layout"
         android:layout_width="match_parent"
@@ -16,7 +17,8 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:visibility="gone"
-        android:background="#ff0000">
+        android:paddingTop="@dimen/sroll_text_size"
+        android:background="#ffffff">
 
         <TextView
             android:layout_width="wrap_content"
@@ -26,7 +28,7 @@
             android:id="@+id/static_text_title"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
-            android:textColor="#ffffff"
+            android:textColor="#ff0000"
             android:textSize="@dimen/static_text_title_font_size" />
 
         <TextView
@@ -36,7 +38,7 @@
             android:id="@+id/static_text_line1"
             android:layout_below="@+id/static_text_title"
             android:layout_alignParentStart="true"
-            android:textColor="#ffffff"
+            android:textColor="#ff0000"
             android:textSize="@dimen/static_text_line_font_size" />
 
         <TextView
@@ -46,9 +48,11 @@
             android:id="@+id/static_text_line2"
             android:layout_below="@+id/static_text_line1"
             android:layout_alignParentStart="true"
-            android:textColor="#ffffff"
+            android:textColor="#ff0000"
             android:textSize="@dimen/static_text_line_font_size"/>
     </RelativeLayout>
+
+    <!-- AD content display area -->
     <RelativeLayout
         android:id="@+id/image_display_layout"
         android:layout_width="match_parent"
@@ -67,4 +71,109 @@
             android:background="@drawable/welcome"
             android:scaleType="fitXY" />
     </RelativeLayout>
+
+    <!-- text marquee in the top of screen -->
+    <HorizontalScrollView
+        android:id="@+id/scrollTextLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:scrollbars="none"
+        android:paddingTop="0dp"
+        android:visibility="visible"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="这是一个希望滚动的文本条啊文本条"
+            android:id="@+id/textScrolling"
+            android:textSize="@dimen/sroll_text_size"
+            android:textIsSelectable="true"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textColor="#FFFFFFFF"
+            android:layout_alignParentTop="true"/>
+    </HorizontalScrollView>
+
+    <!-- buttons for settings -->
+    <LinearLayout
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="0dp"
+        android:visibility="gone"
+        android:orientation="horizontal"
+        android:layout_below="@+id/scrollTextLayout"
+        android:layout_alignParentStart="true">
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btnTest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:text="测试"
+            android:visibility="gone"/>
+        <Button
+            android:id="@+id/btnUpgrade"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:text="升级" />
+        <Button
+            android:id="@+id/btnSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:text="设置" />
+    </LinearLayout>
+
+    <!-- icons for statues -->
+    <LinearLayout
+        android:id="@+id/flag_icons_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="0dp"
+        android:visibility="gone"
+        android:orientation="horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/offlineFlag"
+            android:src="@drawable/broken" />
+    </LinearLayout>
+
+    <!-- bottom status bar -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/bottom_info_bar"
+        android:layout_alignParentStart="true">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="test"
+            android:id="@+id/bottom_info_title"
+            android:layout_weight="1" />
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:id="@+id/bottom_info_ratio"
+            android:layout_weight="100" />
+    </LinearLayout>
+
 </RelativeLayout>

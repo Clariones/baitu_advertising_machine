@@ -10,36 +10,23 @@ import com.skynet.adplayer.common.Constants;
 import com.skynet.adplayer.common.ImageAdContent;
 import com.skynet.adplayer.utils.DateTimeUtils;
 import com.skynet.adplayer.utils.FileUtils;
+import com.skynet.adplayer.utils.MiscUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-public class PlayingTask extends Thread{
+public class PlayingTask extends BasicTask{
     private static final String TAG = "PLAYING_TASK";
     protected MainActivity mainActivity;
-    protected boolean isRunning = false;
     protected AdMachinePlayList playList;
     private int currentContentIndex;
     private long nextPlayTimeMs;
 
-    public boolean isRunning() {
-        return isRunning;
-    }
-
-    public void setRunning(boolean running) {
-        isRunning = running;
-    }
-
     public void initMembers(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
         setRunning(false);
-    }
-
-    public void startToRun() {
-        setRunning(true);
-        this.start();
     }
 
     public void run(){
@@ -83,8 +70,11 @@ public class PlayingTask extends Thread{
                        || Constants.AD_CONTENT_TYPE_CMC_IMAGE.equals(page.getContentType())){
                    String fileName = FileUtils.calcCachedAdContentFileName(page);
                    ImageAdContent imageContent = new ImageAdContent();
-                   imageContent.setContentFileName(fileName);
+                   File imageFile = mainActivity.getCachedImageFileByName(fileName);
+                   imageContent.setImageFile(imageFile);
                    imageContent.setPlayDuration(page.getPlayDuration());
+                   imageContent.setMainActivity(mainActivity);
+                   imageContent.setTitle(page.getTitle());
 
                    adContent = imageContent;
                }else{
@@ -129,6 +119,9 @@ public class PlayingTask extends Thread{
 
         currentContentIndex = -1;
         nextPlayTimeMs = 0;
+
+        String plMd5Str = playList.toStringForMD5();
+        mainActivity.setPlayingListMd5(MiscUtils.md5Hex(plMd5Str));
     }
 
     private void sleep1Sec() {
@@ -138,7 +131,4 @@ public class PlayingTask extends Thread{
         }
     }
 
-    public void stopAllAndQuit() {
-
-    }
 }

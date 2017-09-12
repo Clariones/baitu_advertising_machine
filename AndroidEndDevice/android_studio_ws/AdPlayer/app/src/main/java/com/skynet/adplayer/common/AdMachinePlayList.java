@@ -45,6 +45,26 @@ public class AdMachinePlayList {
 	public void setAdMachine(Refrigerator adMachine) {
 		this.adMachine = adMachine;
 	}
-	
-	
+
+	/**
+	 * create a string used for calc MD5, so not all fields were used, and not well formated
+	 * @return
+     */
+	public String toStringForMD5(){
+		StringBuilder sb = new StringBuilder();
+		if (getAdMachine() != null) {
+			sb.append("admachine:").append(getAdMachine().getId()).append(";");
+		}
+		if (getPages() != null){
+			for(AdMachinePageContent page : getPages()){
+				sb.append(page.getContentType()).append(page.getContentId()).append(',');
+				sb.append(page.getStartTimeSec()).append("-").append(page.getEndTimeSec()).append(',');
+				if (page.getImageUri() != null) {
+					sb.append("imageurl:").append(page.getImageUri());
+				}
+			}
+		}
+
+		return sb.toString();
+	}
 }

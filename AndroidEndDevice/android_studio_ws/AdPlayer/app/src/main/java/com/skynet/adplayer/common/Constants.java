@@ -1,5 +1,8 @@
 package com.skynet.adplayer.common;
 
+import java.text.SimpleDateFormat;
+import java.util.regex.Pattern;
+
 /**
  * Created by clariones on 6/20/17.
  */
@@ -12,7 +15,7 @@ public class Constants {
     public static final long TIME_1_MINUTE = 60 * TIME_1_SECOND;
     public static final long TIME_1_HOUR = 60 * TIME_1_MINUTE;
 
-  //  public static final String SERVER_URL_PREFIX = "http://ad.bettbio.com:8380/naf/";
+    //  public static final String SERVER_URL_PREFIX = "http://ad.bettbio.com:8380/naf/";
 //    public static final String SERVER_URL_PREFIX = "http://192.168.1.101:8080/naf/";
     public static final String URL_RETRIEVE_AD_LIST = "playListManager/retrievePlayList/";
     public static final String URL_CHECK_APK_VERSION = "adMachineApkManager/checkReleaseInfo/";
@@ -27,9 +30,11 @@ public class Constants {
     public static final String STATIC_CONTENT_FILE = "index.html";
 
     // for product
-    public static final String START_UP_SERVER_ADDRESS = "http://www.bettbio.com/bettbio_ad/devices_v1/pc_iframe/data/startup/info.json";
+    //public static final String START_UP_SERVER_ADDRESS = "http://www.bettbio.com/bettbio_ad/devices_v1/pc_iframe/data/startup/info.json";
     // for test
     //public static final String START_UP_SERVER_ADDRESS = "http://www.bettbio.com/bettbio_ad/devices_v1/pc_iframe/data/startup/info_testenv.json";
+    // for develop
+    public static final String START_UP_SERVER_ADDRESS = "http://10.0.2.2:8080/test_start_up/data/info_10.0.2.2.json";
 
     public static final long FORCE_RELOAD_TIME_PERIOD = 12 * TIME_1_HOUR;
 
@@ -43,4 +48,14 @@ public class Constants {
     public static final String AD_CONTENT_TYPE_INTRA_IMAGE = "intra_image";
     public static final String AD_CONTENT_TYPE_CMC_IMAGE = "cmc_image";
     public static final String AD_CONTENT_FILE_TYPE_IMAGE = "image";
+
+    public static final Pattern playListFileNamePattern = Pattern.compile("^playlist_(\\d{8}_\\d{6})\\.json$");
+    public static final SimpleDateFormat playListDateFormater = new SimpleDateFormat("yyyyMMdd_HHmmss");
+
+    public static final int CACHE_ACTION_FAILED = -1;
+    public static final int CACHE_ACTION_SUCCESS = 0;
+    public static final int CACHE_ACTION_NO_CHANGE = 1;
+
+    public static final String PARAM_PUBLIC_MEDIA_SERVER_PREFIX = "publicMediaServerPrefix";
+    public static final String PARAM_RETRIEVE_PLAYLIST_URL = "startUpUrl";
 }

@@ -1,37 +1,36 @@
 package com.skynet.adplayer.activities.mainactvity;
 
 import android.os.Environment;
+import android.util.Log;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skynet.adplayer.activities.MainActivity;
 import com.skynet.adplayer.common.AdMachinePageContent;
 import com.skynet.adplayer.common.AdMachinePlayList;
 import com.skynet.adplayer.common.Constants;
 import com.skynet.adplayer.utils.FileUtils;
+import com.skynet.adplayer.utils.HttpUtils;
+import com.skynet.adplayer.utils.MiscUtils;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ContentManager {
     protected MainActivity mainActivity;
-    protected static final Pattern playListFileNamePattern = Pattern.compile("^playlist_(\\d{8}_\\d{6})\\.json$");
-    protected static final SimpleDateFormat dateFormater = new SimpleDateFormat("yyyyMMdd_HHmmss");
+
 
     public void initMembers(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
         File baseFolder = getContentBaseFolder();
-        if (!baseFolder.exists()){
+        if (!baseFolder.exists()) {
             baseFolder.mkdirs();
         }
     }
@@ -42,32 +41,32 @@ public class ContentManager {
         String[] files = baseFolder.list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return playListFileNamePattern.matcher(name).matches();
+                return Constants.playListFileNamePattern.matcher(name).matches();
             }
         });
-        if (files == null || files.length == 0){
+        if (files == null || files.length == 0) {
             return null;
         }
-        if (files.length == 1){
+        if (files.length == 1) {
             return new File(baseFolder, files[0]);
         }
         String latestFileName = files[0];
-        Matcher m = playListFileNamePattern.matcher(latestFileName);
+        Matcher m = Constants.playListFileNamePattern.matcher(latestFileName);
         m.matches();
         Date lastestFileDate = null;
         try {
-            lastestFileDate = dateFormater.parse(m.group(1));
+            lastestFileDate = Constants.playListDateFormater.parse(m.group(1));
         } catch (ParseException e) {
             e.printStackTrace();
             return null;
         }
-        for(int i=0;i<files.length;i++){
+        for (int i = 0; i < files.length; i++) {
             try {
-                m = playListFileNamePattern.matcher(files[i]);
+                m = Constants.playListFileNamePattern.matcher(files[i]);
                 m.matches();
-                Date curFileDate = dateFormater.parse(m.group(1));
+                Date curFileDate = Constants.playListDateFormater.parse(m.group(1));
 
-                if (curFileDate.getTime() > lastestFileDate.getTime()){
+                if (curFileDate.getTime() > lastestFileDate.getTime()) {
                     latestFileName = files[i];
                     lastestFileDate = curFileDate;
                 }
@@ -75,6 +74,7 @@ public class ContentManager {
                 e.printStackTrace();
             }
         }
+        Log.i("CONTENT_MANAGER", "Using play list file " + latestFileName);
         return new File(baseFolder, latestFileName);
     }
 
@@ -91,8 +91,8 @@ public class ContentManager {
                 return isTemperoryFile(name);
             }
         });
-        if (files != null){
-            for(File file: files){
+        if (files != null) {
+            for (File file : files) {
                 String fileName = file.getName();
                 File tmpFile = new File(baseFolder, fileName);
                 FileUtils.deleteAll(tmpFile);
@@ -103,10 +103,10 @@ public class ContentManager {
         files = baseFolder.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return playListFileNamePattern.matcher(name).matches();
+                return Constants.playListFileNamePattern.matcher(name).matches();
             }
         });
-        if(files == null || files.length == 0){
+        if (files == null || files.length == 0) {
             // no any play_list file, then no any file should be here
             FileUtils.deleteAll(baseFolder);
             baseFolder.mkdirs();
@@ -114,11 +114,10 @@ public class ContentManager {
         }
 
         // find half-baked play-list files
-        ObjectMapper jsonMapper = new ObjectMapper();
-        jsonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        ObjectMapper jsonMapper = MiscUtils.createObjectMapper();
         List<File> validPlayListFiles = new ArrayList<File>();
         Set<String> validAdContentFileName = new HashSet<String>();
-        for(File playListFile: files){
+        for (File playListFile : files) {
             AdMachinePlayList playList = null;
             try {
                 playList = jsonMapper.readValue(playListFile, AdMachinePlayList.class);
@@ -127,40 +126,40 @@ public class ContentManager {
                 // has exception, this is invalid
                 continue;
             }
-            if (playList == null || playList.getPages() == null){
+            if (playList == null || playList.getPages() == null) {
                 continue;
             }
             boolean allFound = true;
-            for(AdMachinePageContent page: playList.getPages()){
+            for (AdMachinePageContent page : playList.getPages()) {
                 String cachedFileName = FileUtils.calcCachedAdContentFileName(page);
                 File cachedFile = new File(baseFolder, cachedFileName);
-                if (!cachedFile.exists() || !cachedFile.isFile()){
+                if (!cachedFile.exists() || !cachedFile.isFile()) {
                     allFound = false;
                     break;
                 }
             }
-            if (!allFound){
+            if (!allFound) {
                 FileUtils.deleteAll(playListFile);
                 continue;
             }
             validPlayListFiles.add(playListFile);
-            for(AdMachinePageContent page: playList.getPages()){
+            for (AdMachinePageContent page : playList.getPages()) {
                 String cachedFileName = FileUtils.calcCachedAdContentFileName(page);
                 validAdContentFileName.add(cachedFileName);
             }
         }
 
         files = baseFolder.listFiles();
-        if (files == null || files.length == 0){
+        if (files == null || files.length == 0) {
             return; // all files already removed
         }
-        for(File file : files){
+        for (File file : files) {
             String fileName = file.getName();
-            Matcher m = playListFileNamePattern.matcher(fileName);
-            if (m.matches()){
+            Matcher m = Constants.playListFileNamePattern.matcher(fileName);
+            if (m.matches()) {
                 continue; // play list file already verified above
             }
-            if (validAdContentFileName.contains(fileName)){
+            if (validAdContentFileName.contains(fileName)) {
                 continue; // used in play list, so it's valid
             }
             // else, not used anywhere,
@@ -169,9 +168,45 @@ public class ContentManager {
     }
 
     private boolean isTemperoryFile(String name) {
-        if (name == null || name.isEmpty()){
+        if (name == null || name.isEmpty()) {
             return false;
         }
         return name.trim().toLowerCase().endsWith(Constants.TEMP_FILE_POSTFIX);
+    }
+
+    public File saveToTempPlayListFile(AdMachinePlayList playList) throws Exception {
+        ObjectMapper objMapper = MiscUtils.createObjectMapper();
+        String fileName = FileUtils.calcCachedPlayListFileName();
+        File file = new File(getContentBaseFolder(), fileName + Constants.TEMP_FILE_POSTFIX);
+        objMapper.writerWithDefaultPrettyPrinter().writeValue(file, playList);
+        return file;
+    }
+
+    public void downloadAdContentFile(AdMachinePageContent page) throws Exception {
+        if (Constants.AD_CONTENT_TYPE_INTRA_IMAGE.equals(page.getContentType()) || Constants.AD_CONTENT_TYPE_INTRA_IMAGE.equals(page.getContentType())) {
+            String fileName = FileUtils.calcCachedAdContentFileName(page);
+            String urlPrefix = mainActivity.getMediaServerUrlPrefix();
+            downloadImageFile(urlPrefix+page.getImageUri(), fileName);
+            return;
+        }
+
+        Log.e("CONTENT_MANAGER", "Unsupported AD content type " + page.getContentType());
+    }
+
+    private void downloadImageFile(String url, String fileName) throws Exception {
+        File baseFolder = getContentBaseFolder();
+        File tgtFile = new File(baseFolder, fileName);
+        if (tgtFile.exists()){
+            Log.i("CONTENT_MANAGER", fileName +" already downloaded. Skip.");
+            return;
+        }
+
+        File tempFile = new File(baseFolder, fileName+Constants.TEMP_FILE_POSTFIX);
+        HttpUtils.saveResponseToFile(url, tempFile);
+        FileUtils.renameFileByRemoveTempPostfix(tempFile);
+    }
+
+    public File getCachedImageFileByName(String fileName) {
+        return new File(getContentBaseFolder(), fileName);
     }
 }

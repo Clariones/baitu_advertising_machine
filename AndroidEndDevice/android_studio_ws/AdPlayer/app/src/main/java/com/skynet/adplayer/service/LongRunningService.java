@@ -128,9 +128,9 @@ public class LongRunningService extends Service {
             Log.i(TAG, "RESPONSE: " + jsonStr);
             JSONObject jObject = new JSONObject(jsonStr);
 
-            String startUpUrl = jObject.getString("startUpUrl");
+            String startUpUrl = jObject.getString(Constants.PARAM_RETRIEVE_PLAYLIST_URL);
             String checkVersionUrl = jObject.getString("checkVersionUrl");
-            String publicMediaServerPrefix = jObject.getString("publicMediaServerPrefix");
+            String publicMediaServerPrefix = jObject.getString(Constants.PARAM_PUBLIC_MEDIA_SERVER_PREFIX);
             String offlinePackageUrl = jObject.getString("offlinePackageUrl");
 
 
