@@ -59,9 +59,13 @@ public class AdMachinePlayList {
 			for(AdMachinePageContent page : getPages()){
 				sb.append(page.getContentType()).append(page.getContentId()).append(',');
 				sb.append(page.getStartTimeSec()).append("-").append(page.getEndTimeSec()).append(',');
-				if (page.getImageUri() != null) {
-					sb.append("imageurl:").append(page.getImageUri());
+				if (page.getPlayDuration() > 0){
+					sb.append("playduration:").append(page.getPlayDuration()).append(',');
 				}
+				if (page.getImageUri() != null) {
+					sb.append("imageurl:").append(page.getImageUri()).append(',');
+				}
+				sb.append("\n");
 			}
 		}
 

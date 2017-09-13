@@ -1,13 +1,19 @@
 package com.skynet.adplayer.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.RelativeLayout;
 
 import com.skynet.adplayer.R;
 import com.skynet.adplayer.activities.mainactvity.CachingTask;
+import com.skynet.adplayer.activities.mainactvity.ConfigurationManager;
 import com.skynet.adplayer.activities.mainactvity.ContentManager;
 import com.skynet.adplayer.activities.mainactvity.ContentPlayer;
 import com.skynet.adplayer.activities.mainactvity.MarqueeShower;
@@ -15,6 +21,7 @@ import com.skynet.adplayer.activities.mainactvity.PlayingTask;
 import com.skynet.adplayer.activities.mainactvity.PollingTask;
 import com.skynet.adplayer.activities.mainactvity.StaticTextShower;
 import com.skynet.adplayer.activities.mainactvity.StatusShower;
+import com.skynet.adplayer.activities.mainactvity.UpgradeTask;
 import com.skynet.adplayer.common.AdMachinePageContent;
 import com.skynet.adplayer.common.AdMachinePlayList;
 import com.skynet.adplayer.common.Constants;
@@ -41,12 +48,14 @@ public class MainActivity extends AppCompatActivity {
     private static final int MESSAGE_CODE_BOTTOM_STAUTS_MESSAGE = 8001;
     private static final int MESSAGE_CODE_HIDE_BOTTOM_STATUS = 8002;
     private static final int MESSAGE_CODE_ERROR_RESPONSE_MESSAGE = 8003;
+    private static final int MESSAGE_CODE_HIDE_CONFIG_LAYOUT = 8004;
 
     public static MainActivity me;
     private StaticTextShower staticTextShower;
     private ContentManager contentManager;
     private PlayingTask playingTask;
     private CachingTask cachingTask;
+    private UpgradeTask upgradeTask;
     private PollingTask pollingTask;
     private long offlineStartTime;
     private boolean offlineState;
@@ -56,6 +65,10 @@ public class MainActivity extends AppCompatActivity {
     private Map<String, String> startUpInfo;
     private String playingListMd5;
     private ContentPlayer contentPlayer;
+    private RelativeLayout mainLayout;
+    private ConfigurationManager configurationManager;
+    private Button mBtnSettigs;
+    private Button mBtnUpgrade;
 
     public long getOfflineStartTime() {
         return offlineStartTime;
@@ -78,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
         // no any functional code allowed before this.
         //
 
+        markOfflineFlag(true);
         marqueeShower.startScollingTask();
 
         clearGarbage();
@@ -109,6 +123,8 @@ public class MainActivity extends AppCompatActivity {
         staticTextShower.initMembers(this);
         startUpInfo = new HashMap<String, String>();
 
+        mainLayout = (RelativeLayout) findViewById(R.id.main_layout);
+
         contentManager = new ContentManager();
         contentManager.initMembers(this);
 
@@ -129,6 +145,29 @@ public class MainActivity extends AppCompatActivity {
 
         marqueeShower = new MarqueeShower();
         marqueeShower.initMembers(this);
+
+        configurationManager = new ConfigurationManager();
+        configurationManager.initMembers(this);
+
+        upgradeTask = new UpgradeTask();
+        upgradeTask.initMembers(this);
+
+        mBtnSettigs = (Button) findViewById(R.id.btnSettings);
+        mBtnSettigs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivityForResult(intent, Constants.REQUEST_CODE_OPEN_SETTING_ACTIVITY);
+            }
+        });
+
+        mBtnUpgrade = (Button) findViewById(R.id.btnUpgrade);
+        mBtnUpgrade.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                upgradeTask.startToRun();
+            }
+        });
 
         internalHandler = new Handler(){
             @Override
@@ -161,6 +200,8 @@ public class MainActivity extends AppCompatActivity {
             case MESSAGE_CODE_ERROR_RESPONSE_MESSAGE:
                 staticTextShower.onRetrievePlayListFailed((AdMachinePlayList)msg.obj);
                 break;
+            case MESSAGE_CODE_HIDE_CONFIG_LAYOUT:
+                configurationManager.hide();
         }
     }
 
@@ -179,6 +220,7 @@ public class MainActivity extends AppCompatActivity {
         pollingTask.stopAllAndQuit();
         playingTask.stopAllAndQuit();
         cachingTask.stopAllAndQuit();
+        upgradeTask.stopAllAndQuit();
     }
 
     public void onEachMinute() {
@@ -286,5 +328,54 @@ public class MainActivity extends AppCompatActivity {
 
     public void showPicture(File imageFile) {
         contentPlayer.displayLocalImageFile(imageFile);
+    }
+
+    public void deleteOtherPlayListFile(File playListFile) {
+        contentManager.deleteOtherPlayListFile(playListFile);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        int action = event.getAction();
+        if (action == MotionEvent.ACTION_MOVE){
+            //Log.i("======================", "X=" + event.getX()+", Y="+event.getY());
+            if (configurationManager.inRectangleRange(event.getX(), event.getY())){
+                configurationManager.onMoveInRange();
+                return true;
+            }
+        }else if (action == MotionEvent.ACTION_DOWN){
+            if (!configurationManager.inRectangleRange(event.getX(), event.getY())
+                    && configurationManager.isShowingup()){
+                configurationManager.hide();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void hideConfigLayout() {
+        Message msg = new Message();
+        msg.what = MESSAGE_CODE_HIDE_CONFIG_LAYOUT;
+        internalHandler.sendMessage(msg);
+    }
+
+    public String getCurrentAdminPassword() {
+        return PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREF_KEY_ADMIN_PASSWORD, Constants.DEFAULT_ADMIN_PASSWORD);
+    }
+
+    public String getPasswordUpdateUrl() {
+        return startUpInfo.get(Constants.PARAM_UPDATE_ADMIN_PASSWORD_URL);
+    }
+
+    public void setAdminPassword(String newPassword) {
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putString(Constants.PREF_KEY_ADMIN_PASSWORD, newPassword).commit();
+    }
+
+    public String getCheckNewVersionUrl() {
+        return startUpInfo.get(Constants.PARAM_CHECK_NEW_APK_URL);
+    }
+
+    public String getReportDisplayUrl() {
+        return startUpInfo.get(Constants.PARAM_REPORT_DISPLAY_URL);
     }
 }

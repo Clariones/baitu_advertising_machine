@@ -7,4 +7,5 @@
     <dimen name="zero">0dp</dimen>
     <dimen name="static_text_title_font_size">48dp</dimen>
     <dimen name="static_text_line_font_size">24dp</dimen>
+    <dimen name="admachine_id_text_font_size">20dp</dimen>
 </resources>

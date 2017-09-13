@@ -41,6 +41,7 @@ public class Constants {
     public static final String DEPLOY_DONE_FILE = "deploy.done";
 
     public static final String PREF_KEY_CONTENT_URL = "pref_key_content_url";
+    public static final String PREF_KEY_ADMIN_PASSWORD = "pref_key_admin_password";
 
     public static final String TEXT_SROLLING = "广告投放服务热线：021-61552739 15221370265 ";
     public static final String TEMP_FILE_POSTFIX = ".tmp";
@@ -58,4 +59,13 @@ public class Constants {
 
     public static final String PARAM_PUBLIC_MEDIA_SERVER_PREFIX = "publicMediaServerPrefix";
     public static final String PARAM_RETRIEVE_PLAYLIST_URL = "startUpUrl";
+    public static final String PARAM_UPDATE_ADMIN_PASSWORD_URL = "passwordUpdateUrl";
+    public static final String PARAM_REPORT_DISPLAY_URL = "reportDisplayUrl";
+    public static final String PARAM_CHECK_NEW_APK_URL = "checkVersionUrl";
+
+    public static final long CONFIGURE_LAYOUT_AUTO_HIDE_TIME_IN_MS = 10000; // 10 Seconds
+
+    public static final String DEFAULT_ADMIN_PASSWORD = "123456";
+
+
 }

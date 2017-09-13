@@ -29,7 +29,8 @@ public class ImageAdContent extends BaseAdContent {
 
     public void startToPlay(MainActivity mainActivity) {
         getMainActivity().showPicture(getImageFile());
-        getMainActivity().updateBottomStatues("标题：" + getTitle(), null, true);
+        // for debugging:
+        // getMainActivity().updateBottomStatues("标题：" + getTitle(), null, true);
         long waitTime = getPlayDuration() * 1000l;
         new Timer().schedule(new TimerTask(){
 

@@ -35,6 +35,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.skynet.adplayer.activities.SettingsActivity;
 import com.skynet.adplayer.common.AdPlayerInfo;
 import com.skynet.adplayer.common.AdPlayerStatus;
 import com.skynet.adplayer.common.ApkReleaseInfo;

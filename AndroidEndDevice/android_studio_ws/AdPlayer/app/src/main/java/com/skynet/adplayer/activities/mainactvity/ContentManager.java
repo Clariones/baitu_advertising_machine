@@ -13,6 +13,7 @@ import com.skynet.adplayer.utils.HttpUtils;
 import com.skynet.adplayer.utils.MiscUtils;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.ParseException;
@@ -208,5 +209,28 @@ public class ContentManager {
 
     public File getCachedImageFileByName(String fileName) {
         return new File(getContentBaseFolder(), fileName);
+    }
+
+    public void deleteOtherPlayListFile(final File playListFile) {
+        File folder = getContentBaseFolder();
+        File[] files = folder.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                if (playListFile.equals(pathname)){
+                    return false;
+                }
+                Matcher m = Constants.playListFileNamePattern.matcher(pathname.getName());
+                if (m.matches()){
+                    return true;
+                }
+                return false;
+            }
+        });
+        if (files == null || files.length < 1){
+            return;
+        }
+        for(File file : files){
+            FileUtils.deleteAll(file);
+        }
     }
 }

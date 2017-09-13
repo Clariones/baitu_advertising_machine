@@ -1,7 +1,9 @@
 package com.skynet.adplayer.activities.mainactvity;
 
 import android.util.Log;
+import android.widget.TextView;
 
+import com.skynet.adplayer.R;
 import com.skynet.adplayer.activities.MainActivity;
 import com.skynet.adplayer.common.AdMachinePageContent;
 import com.skynet.adplayer.common.AdMachinePlayList;
@@ -10,6 +12,7 @@ import com.skynet.adplayer.common.Constants;
 import com.skynet.adplayer.common.ImageAdContent;
 import com.skynet.adplayer.utils.DateTimeUtils;
 import com.skynet.adplayer.utils.FileUtils;
+import com.skynet.adplayer.utils.HttpUtils;
 import com.skynet.adplayer.utils.MiscUtils;
 
 import java.io.File;
@@ -23,9 +26,12 @@ public class PlayingTask extends BasicTask{
     protected AdMachinePlayList playList;
     private int currentContentIndex;
     private long nextPlayTimeMs;
+    private TextView idText;
 
     public void initMembers(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
+        this.idText = (TextView) mainActivity.findViewById(R.id.admachine_id_text);
+        idText.setText("");
         setRunning(false);
     }
 
@@ -42,6 +48,7 @@ public class PlayingTask extends BasicTask{
 
            boolean cacheTaskIsRunning = mainActivity.isCachingTaskRunning();
            if (!cacheTaskIsRunning){
+               mainActivity.deleteOtherPlayListFile(playListFile);
                mainActivity.clearGarbage();
                mainActivity.startCacheTask();
            }
@@ -57,6 +64,13 @@ public class PlayingTask extends BasicTask{
 
            int pos = 0;
            List<AdMachinePageContent> pages = playList.getPages();
+           mainActivity.runOnUiThread(new Runnable() {
+               @Override
+               public void run() {
+                   idText.setText(playList.getAdMachine().getId());
+               }
+           });
+
            while(pos < pages.size()) {
                int validPageIndex = findPageNowInTimeRangeFrom(pages, pos);
                if (validPageIndex < pos){
@@ -82,6 +96,7 @@ public class PlayingTask extends BasicTask{
                    Log.e(TAG, "Unsupport AD type " + page.getContentType());
                    continue;
                }
+               reportDisplayEvent(playList, page);
                adContent.startToPlay(mainActivity);
 
                adContent.waitingForPlayingDone();
@@ -90,6 +105,22 @@ public class PlayingTask extends BasicTask{
                }
            }
        }
+    }
+
+    private void reportDisplayEvent(AdMachinePlayList playList, AdMachinePageContent page) {
+        if (mainActivity.isOfflineState()){
+            return;
+        }
+        String url = mainActivity.getReportDisplayUrl();
+        if (url == null || url.isEmpty()){
+            return;
+        }
+
+        url = url + playList.getAdMachine().getId() +"/" + page.getContentType() +"/"+page.getContentId() + "/";
+        try {
+            HttpUtils.getRequestWithUseAgent(url);
+        } catch (Exception e) {
+        }
     }
 
     private int findPageNowInTimeRangeFrom(List<AdMachinePageContent> pages, int index) {

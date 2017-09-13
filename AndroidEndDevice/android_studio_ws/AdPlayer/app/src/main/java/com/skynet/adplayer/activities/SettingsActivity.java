@@ -1,4 +1,4 @@
-package com.skynet.adplayer;
+package com.skynet.adplayer.activities;
 
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -8,6 +8,9 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import com.skynet.adplayer.BuildConfig;
+import com.skynet.adplayer.R;
+import com.skynet.adplayer.common.Constants;
 import com.skynet.adplayer.utils.SystemPropertyUtils;
 
 public class SettingsActivity extends AppCompatActivity {    @Override
@@ -40,6 +43,7 @@ protected void onCreate(Bundle savedInstanceState) {
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
             updateStringSummary(prefs, "pref_key_model_name", Build.MANUFACTURER+" "+SystemPropertyUtils.getModel());
             updateStringSummary(prefs, "pref_key_serial_number", SystemPropertyUtils.getSerialNo());
+            updateStringSummary(prefs, Constants.PREF_KEY_ADMIN_PASSWORD, prefs.getString(Constants.PREF_KEY_ADMIN_PASSWORD, Constants.DEFAULT_ADMIN_PASSWORD));
             updateStringSummary(prefs, "pref_key_apk_version", BuildConfig.VERSION_NAME);
         }
 

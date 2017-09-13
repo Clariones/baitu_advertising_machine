@@ -10,6 +10,9 @@
     <Preference
         android:key="pref_key_apk_version"
         android:title="版本号" />
+    <Preference
+        android:key="pref_key_admin_password"
+        android:title="口令" />
     <PreferenceScreen
         android:key="wifi_settings"
         android:summary=""

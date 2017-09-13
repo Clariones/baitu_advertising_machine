@@ -6,6 +6,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.BackgroundColorSpan;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
@@ -86,6 +87,7 @@ public class MarqueeShower {
             }
         };
         mThread.start();
+        scrollLine.setVisibility(View.VISIBLE);
     }
 
     private void updateScrolling() {
