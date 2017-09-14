@@ -1,6 +1,7 @@
 package com.skynet.adplayer.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     private ConfigurationManager configurationManager;
     private Button mBtnSettigs;
     private Button mBtnUpgrade;
+    private Button mBtnTestNextwork;
 
     public long getOfflineStartTime() {
         return offlineStartTime;
@@ -168,6 +170,17 @@ public class MainActivity extends AppCompatActivity {
                 upgradeTask.startToRun();
             }
         });
+
+        mBtnTestNextwork = (Button) findViewById(R.id.btnTestNetwork);
+        mBtnTestNextwork.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.baidu.com"));
+                startActivity(browserIntent);
+            }
+        });
+
+
 
         internalHandler = new Handler(){
             @Override

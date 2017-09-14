@@ -131,7 +131,7 @@ public class PlayingTask extends BasicTask{
             int startTimeSec = page.getStartTimeSec();
             int endTimeSec = page.getEndTimeSec();
 
-            if (DateTimeUtils.inValidTimeRange(curTimeSec, startTimeSec, endTimeSec)){
+            if (DateTimeUtils.inTimeRange(curTimeSec, startTimeSec, endTimeSec)){
                 return i;
             }
         }

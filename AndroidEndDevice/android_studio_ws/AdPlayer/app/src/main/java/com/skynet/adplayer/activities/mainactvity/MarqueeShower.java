@@ -2,12 +2,13 @@ package com.skynet.adplayer.activities.mainactvity;
 
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.TextView;
@@ -23,13 +24,46 @@ public class MarqueeShower {
     private int curX;
     private int scrollingEnd;
     private Thread mThread;
+    private boolean initialed = false;
 
     public void initMembers(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
         scrollLine = (HorizontalScrollView) mainActivity.findViewById(R.id.scrollTextLayout);
+        scrollLine.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        initAfterUIRenderingDone();
+
+                    }
+                });
+    }
+
+    private void initAfterUIRenderingDone() {
+        if (initialed){
+            return;
+        }
+        initialed = true;
+        synchronized (scrollLine){
+            scrollLine.notifyAll();
+        }
     }
 
     public void startScollingTask() {
+        new Thread(){
+            public void run(){
+                runningTask();
+            }
+        }.start();
+    }
+    public void runningTask(){
+        synchronized (scrollLine){
+            try {
+                scrollLine.wait();
+            } catch (InterruptedException e) {
+
+            }
+        }
         scrollLine.scrollTo(0,0);
         running = true;
         curX = 0;
@@ -37,8 +71,11 @@ public class MarqueeShower {
         Paint paint = txtView.getPaint();
         float textLength = paint.measureText(Constants.TEXT_SROLLING);
         Log.i("===================", "textLength="+textLength);
-        WindowManager wm = mainActivity.getWindowManager();
-        int scrollViewWidth =wm.getDefaultDisplay().getWidth();
+        //WindowManager wm = mainActivity.getWindowManager();
+        Rect rect = new Rect();
+        View mainView = mainActivity.findViewById(R.id.main_layout);
+        mainView.getLocalVisibleRect(rect);
+        int scrollViewWidth =rect.width();
         Log.i("===================", "scrollViewWidth="+scrollViewWidth);
 
         String contentStr = Constants.TEXT_SROLLING;

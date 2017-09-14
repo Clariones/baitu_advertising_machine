@@ -44,12 +44,12 @@ public class UpgradeTask extends BasicTask {
         }
 
         if (mainActivity.isOfflineState()){
-            Toast.makeText(mainActivity, "网络故障，无法检查更新。", Toast.LENGTH_LONG).show();
+            showToastMessage("网络故障，无法检查更新。");
             return;
         }
 
         if (mainActivity.getCheckNewVersionUrl() == null){
-            Toast.makeText(mainActivity, "网络故障，请稍后再试。", Toast.LENGTH_LONG).show();
+            showToastMessage("网络故障，请稍后再试。");
             return;
         }
         taskThread = new Thread(){

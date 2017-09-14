@@ -147,13 +147,13 @@ public class ConfigurationManager {
                 }
                 String newPassword = (String) resp.getData().get("password");
                 if (newPassword == null || newPassword.length() < 6){
-                    Toast.makeText(mainActivity, "无效的新密码。请联系管理人员检查数据库是否正常。未更新管理员密码。", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mainActivity, "无效的新密码。请联系管理人员检查数据库是否正常。未更新管理员密码。", Toast.LENGTH_LONG).show();
                     displayConfigLayout();
                     return;
                 }
 
                 mainActivity.setAdminPassword(newPassword);
-                Toast.makeText(mainActivity, "新密码：" + newPassword, Toast.LENGTH_SHORT).show();
+                Toast.makeText(mainActivity, "新密码：" + newPassword, Toast.LENGTH_LONG).show();
                 displayConfigLayout();
             }
         }.execute(mainActivity);

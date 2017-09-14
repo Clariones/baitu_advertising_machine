@@ -15,7 +15,16 @@ public class DateTimeUtils {
         return hour * 60 * 60 + minute * 60 + second;
     }
 
-    public static boolean inValidTimeRange(int curTimeSec, int startTimeSec, int endTimeSec) {
+    /**
+     * Datetime： 2017-12-31 12:30:00
+     * Date ： 2017-12-13
+     * Time ： 12:30:00
+     * @param curTimeSec
+     * @param startTimeSec
+     * @param endTimeSec
+     * @return
+     */
+    public static boolean inTimeRange(int curTimeSec, int startTimeSec, int endTimeSec) {
         if (startTimeSec <= endTimeSec){
             return curTimeSec >= startTimeSec && endTimeSec >= curTimeSec;
         }

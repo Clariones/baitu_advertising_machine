@@ -34,7 +34,8 @@ public class Constants {
     // for test
     //public static final String START_UP_SERVER_ADDRESS = "http://www.bettbio.com/bettbio_ad/devices_v1/pc_iframe/data/startup/info_testenv.json";
     // for develop
-    public static final String START_UP_SERVER_ADDRESS = "http://10.0.2.2:8080/test_start_up/data/info_10.0.2.2.json";
+//    public static final String START_UP_SERVER_ADDRESS = "http://192.168.201.47:8080/test_start_up/data/info_10.0.2.2.json";
+    public static final String START_UP_SERVER_ADDRESS = "http://192.168.201.47:8080/test_start_up/data/info_192.168.201.47.json";
 
     public static final long FORCE_RELOAD_TIME_PERIOD = 12 * TIME_1_HOUR;
 
