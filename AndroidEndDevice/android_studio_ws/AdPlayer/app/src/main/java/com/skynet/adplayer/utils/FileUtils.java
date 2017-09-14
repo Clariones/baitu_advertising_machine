@@ -67,11 +67,13 @@ public class FileUtils {
     public static void renameFileByRemoveTempPostfix(File file) {
         String orgFileName = file.getName();
         String newFileName = orgFileName.substring(0, orgFileName.length() - Constants.TEMP_FILE_POSTFIX.length());
-        boolean  done = file.renameTo(new File(file.getParentFile(), newFileName));
+        File newFile = new File(file.getParentFile(), newFileName);
+        boolean  done = file.renameTo(newFile);
         if (!done){
             Log.e("RENAME_TEMP_FILE", "failed to rename file " + file.getAbsolutePath() + " to " + newFileName);
         }else{
             Log.e("RENAME_TEMP_FILE", "successful to rename file " + file.getAbsolutePath() + " to " + newFileName);
         }
+        Log.i("RENAME_TEMP_FILE", newFile.getAbsolutePath() +" exists="+newFile.exists());
     }
 }

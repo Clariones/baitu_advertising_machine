@@ -96,6 +96,7 @@ public class ContentManager {
             for (File file : files) {
                 String fileName = file.getName();
                 File tmpFile = new File(baseFolder, fileName);
+                Log.i("DELETE_TEMPARORY_FILE", tmpFile.getAbsolutePath());
                 FileUtils.deleteAll(tmpFile);
             }
         }
@@ -110,6 +111,7 @@ public class ContentManager {
         if (files == null || files.length == 0) {
             // no any play_list file, then no any file should be here
             FileUtils.deleteAll(baseFolder);
+            Log.i("DELETE_WHOLE_FOLDER", baseFolder.getAbsolutePath());
             baseFolder.mkdirs();
             return;
         }
@@ -135,11 +137,13 @@ public class ContentManager {
                 String cachedFileName = FileUtils.calcCachedAdContentFileName(page);
                 File cachedFile = new File(baseFolder, cachedFileName);
                 if (!cachedFile.exists() || !cachedFile.isFile()) {
+                    Log.i("CANNOT_FOUND_CONTENT", cachedFile.getAbsolutePath() + " from " + page.getImageUri());
                     allFound = false;
                     break;
                 }
             }
             if (!allFound) {
+                Log.i("DELETE_BROKEN_LIST", playListFile.getAbsolutePath());
                 FileUtils.deleteAll(playListFile);
                 continue;
             }
@@ -164,6 +168,7 @@ public class ContentManager {
                 continue; // used in play list, so it's valid
             }
             // else, not used anywhere,
+            Log.i("DELETE_NOT_USED", file.getAbsolutePath());
             FileUtils.deleteAll(file);
         }
     }
@@ -184,7 +189,7 @@ public class ContentManager {
     }
 
     public void downloadAdContentFile(AdMachinePageContent page) throws Exception {
-        if (Constants.AD_CONTENT_TYPE_INTRA_IMAGE.equals(page.getContentType()) || Constants.AD_CONTENT_TYPE_INTRA_IMAGE.equals(page.getContentType())) {
+        if (Constants.AD_CONTENT_TYPE_INTRA_IMAGE.equals(page.getContentType()) || Constants.AD_CONTENT_TYPE_CMC_IMAGE.equals(page.getContentType())) {
             String fileName = FileUtils.calcCachedAdContentFileName(page);
             String urlPrefix = mainActivity.getMediaServerUrlPrefix();
             downloadImageFile(urlPrefix+page.getImageUri(), fileName);
@@ -192,6 +197,7 @@ public class ContentManager {
         }
 
         Log.e("CONTENT_MANAGER", "Unsupported AD content type " + page.getContentType());
+        throw new Exception("Unsupported AD content type " + page.getContentType());
     }
 
     private void downloadImageFile(String url, String fileName) throws Exception {

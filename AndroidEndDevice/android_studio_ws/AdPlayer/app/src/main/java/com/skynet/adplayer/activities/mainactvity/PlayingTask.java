@@ -43,6 +43,10 @@ public class PlayingTask extends BasicTask{
                // the logic should guarantee there is valid play list file, then start the playing task.
                Log.e(TAG, "There is no any valid playing list");
                sleep1Sec();
+               boolean cacheTaskIsRunning = mainActivity.isCachingTaskRunning();
+               if (!cacheTaskIsRunning){
+                   mainActivity.startCacheTask();
+               }
                continue;
            }
 

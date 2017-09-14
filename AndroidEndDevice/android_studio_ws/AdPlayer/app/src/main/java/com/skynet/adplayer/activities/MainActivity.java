@@ -218,11 +218,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public boolean isCachingTaskRunning() {
+    public synchronized boolean isCachingTaskRunning() {
         return cachingTask.isRunning();
     }
 
-    public void startCacheTask() {
+    public synchronized void startCacheTask() {
         cachingTask.startToRun();
     }
 
@@ -297,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
         return contentManager.saveToTempPlayListFile(playList);
     }
 
-    public void markPlayListProcessingDone(File playListFile) {
+    public synchronized void markPlayListProcessingDone(File playListFile) {
         FileUtils.renameFileByRemoveTempPostfix(playListFile);
         if (!isPlayingTaskRunning()){
             playingTask.startToRun();

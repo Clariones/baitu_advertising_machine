@@ -3,11 +3,11 @@ package com.skynet.adplayer.activities.mainactvity;
 public abstract class BasicTask extends Thread {
     protected boolean running = false;
 
-    public boolean isRunning() {
+    public synchronized boolean isRunning() {
         return running;
     }
 
-    public void setRunning(boolean running) {
+    public synchronized void setRunning(boolean running) {
         this.running = running;
     }
 

@@ -42,14 +42,6 @@
         </activity>
         <activity android:name=".activities.SettingsActivity" />
 
-        <service
-            android:name=".service.LongRunningService"
-            android:enabled="true"
-            android:exported="true"
-            android:stopWithTask="true" />
-
-        <receiver android:name=".service.AlarmReceiver"></receiver>
-
 
     </application>
 
