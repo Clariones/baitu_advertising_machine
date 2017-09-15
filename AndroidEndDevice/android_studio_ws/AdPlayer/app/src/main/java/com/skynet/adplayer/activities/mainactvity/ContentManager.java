@@ -135,6 +135,9 @@ public class ContentManager {
             boolean allFound = true;
             for (AdMachinePageContent page : playList.getPages()) {
                 String cachedFileName = FileUtils.calcCachedAdContentFileName(page);
+                if (cachedFileName == null){
+                    continue; // if has unsupported type of AD content, skip it
+                }
                 File cachedFile = new File(baseFolder, cachedFileName);
                 if (!cachedFile.exists() || !cachedFile.isFile()) {
                     Log.i("CANNOT_FOUND_CONTENT", cachedFile.getAbsolutePath() + " from " + page.getImageUri());
@@ -197,7 +200,8 @@ public class ContentManager {
         }
 
         Log.e("CONTENT_MANAGER", "Unsupported AD content type " + page.getContentType());
-        throw new Exception("Unsupported AD content type " + page.getContentType());
+        // throw new Exception("Unsupported AD content type " + page.getContentType());
+        // don't throw exception, to guarantee AD machine can play known-type of AD if new type of AD content was added but AD machine not upgraded
     }
 
     private void downloadImageFile(String url, String fileName) throws Exception {

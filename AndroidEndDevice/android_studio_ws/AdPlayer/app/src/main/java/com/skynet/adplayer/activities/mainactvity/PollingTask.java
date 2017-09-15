@@ -100,7 +100,7 @@ public class PollingTask extends BasicTask{
     }
 
     private void sendHeartBeatToServer() {
-        String url = Constants.START_UP_SERVER_ADDRESS;
+        String url = MiscUtils.getStartUpUrl();
         HttpUtils.RequestResult result = HttpUtils.get(url);
         if (result.isNetworkError() || result.isServerError()){
             mainActivity.markOfflineFlag(true);

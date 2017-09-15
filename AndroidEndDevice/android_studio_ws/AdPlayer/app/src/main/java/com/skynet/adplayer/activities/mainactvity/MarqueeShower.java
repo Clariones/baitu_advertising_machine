@@ -85,7 +85,7 @@ public class MarqueeShower {
 //            width += textLength;
 //        }
         Spannable spannable = new SpannableString(contentStr);
-        BackgroundColorSpan backgroundColorSpan = new BackgroundColorSpan(Color.argb(255, 255,255,255));
+        BackgroundColorSpan backgroundColorSpan = new BackgroundColorSpan(Color.argb((int) (255*0.75), 255,255,255));
         spannable.setSpan(backgroundColorSpan, 0, contentStr.length()-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         txtView.setTextColor(Color.rgb(0,0,0));
 
@@ -124,7 +124,13 @@ public class MarqueeShower {
             }
         };
         mThread.start();
-        scrollLine.setVisibility(View.VISIBLE);
+        mainActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                scrollLine.setVisibility(View.VISIBLE);
+            }
+        });
+
     }
 
     private void updateScrolling() {

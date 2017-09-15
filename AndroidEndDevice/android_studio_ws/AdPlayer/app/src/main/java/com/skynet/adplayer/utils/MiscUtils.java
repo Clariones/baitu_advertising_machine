@@ -1,9 +1,12 @@
 package com.skynet.adplayer.utils;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.skynet.adplayer.activities.MainActivity;
+import com.skynet.adplayer.common.Constants;
 
 import java.security.MessageDigest;
 
@@ -40,4 +43,52 @@ public class MiscUtils {
             return null;
         }
     }
-} 
+
+    public static void restart(MainActivity me) {
+        Log.i("RESTART", "I want to restart whole device. But now I can only exit my progress and let system restart the app.");
+        //System.exit(0);
+        Process proc = null; //关机
+        try {
+            proc = Runtime.getRuntime().exec(new String[]{"su","-c","reboot"});
+            proc.waitFor();
+            Log.i("TRY_TO_REBOOT", "interesting, log success of reboot");
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.i("TRY_TO_REBOOT", "failed to reboot");
+        }
+
+    }
+
+    public static void tryGetRoot(MainActivity me) {
+        Process proc = null; //关机
+        try {
+            proc = Runtime.getRuntime().exec(new String[]{"su","-c","pwd"});
+            proc.waitFor();
+            Log.i("TRY_GET_ROOT", "success to get root permission");
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.i("TRY_GET_ROOT", "failed to get root permission");
+        }
+
+    }
+
+    public static long getTimeForRestartAfterOffline() {
+        if (Constants.BUILD_MODE == Constants.BUILD_MODE_TEST){
+            return Constants.RESTART_AFTER_OFFLINE_IN_MS_TEST;
+        }else if (Constants.BUILD_MODE == Constants.BUILD_MODE_DEVELOP){
+            return Constants.RESTART_AFTER_OFFLINE_IN_MS_DEV;
+        }else{
+            return Constants.RESTART_AFTER_OFFLINE_IN_MS;
+        }
+    }
+
+    public static String getStartUpUrl() {
+        if (Constants.BUILD_MODE == Constants.BUILD_MODE_TEST){
+            return Constants.START_UP_SERVER_ADDRESS_TEST;
+        }else if (Constants.BUILD_MODE == Constants.BUILD_MODE_DEVELOP){
+            return Constants.START_UP_SERVER_ADDRESS_DEV;
+        }else{
+            return Constants.START_UP_SERVER_ADDRESS;
+        }
+    }
+}

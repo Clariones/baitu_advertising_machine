@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -71,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mBtnSettigs;
     private Button mBtnUpgrade;
     private Button mBtnTestNextwork;
+    private long powerUpTime;
 
     public long getOfflineStartTime() {
         return offlineStartTime;
@@ -88,12 +90,14 @@ public class MainActivity extends AppCompatActivity {
         decorView.setSystemUiVisibility(showFullScreenFlag);
 
         setContentView(R.layout.activity_main);
+        powerUpTime = System.currentTimeMillis();
         initViewComponents();
         //
         // no any functional code allowed before this.
         //
 
         markOfflineFlag(true);
+        tryGetRootPermission();
         marqueeShower.startScollingTask();
 
         clearGarbage();
@@ -107,6 +111,14 @@ public class MainActivity extends AppCompatActivity {
 
         playingTask.startToRun();
         pollingTask.startToRun();
+    }
+
+    private void tryGetRootPermission() {
+        new Thread(){
+            public void run(){
+                MiscUtils.tryGetRoot(me);
+            }
+        }.start();
     }
 
 
@@ -237,7 +249,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onEachMinute() {
-
+        if (!isOfflineState()){
+            return;
+        }
+        long sts = getOfflineStartTime();
+        long cts = System.currentTimeMillis();
+        if (cts - sts > MiscUtils.getTimeForRestartAfterOffline()){
+            Log.i("ON_EACH_MINUTE", "Offline for " + (cts - sts)/1000 + " seconds. Need restart");
+            MiscUtils.restart(me);
+        }else{
+            Log.i("ON_EACH_MINUTE", "Offline for " + (cts - sts)/1000 + " seconds. If more than " + (MiscUtils.getTimeForRestartAfterOffline()/1000) + " will restart");
+        }
     }
 
     public boolean isOfflineState() {
@@ -390,5 +412,9 @@ public class MainActivity extends AppCompatActivity {
 
     public String getReportDisplayUrl() {
         return startUpInfo.get(Constants.PARAM_REPORT_DISPLAY_URL);
+    }
+
+    public long getPowerUpTime() {
+        return powerUpTime;
     }
 }

@@ -28,7 +28,7 @@ public class ConfigurationManager {
     private Rect position;
     private boolean initialed;
     private Timer autoHideTimer;
-    private boolean needPassword = false;
+    private boolean needPassword = true;
     private boolean isAskingPassword =false;
 
     public void initMembers(MainActivity mainActivity) {

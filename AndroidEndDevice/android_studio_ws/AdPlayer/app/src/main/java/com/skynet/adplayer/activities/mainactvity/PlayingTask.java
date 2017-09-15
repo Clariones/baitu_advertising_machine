@@ -71,7 +71,11 @@ public class PlayingTask extends BasicTask{
            mainActivity.runOnUiThread(new Runnable() {
                @Override
                public void run() {
-                   idText.setText(playList.getAdMachine().getId());
+                   if (Constants.BUILD_MODE != Constants.BUILD_MODE_PRODUCT) {
+                       idText.setText(playList.getAdMachine().getId()+"@"+Constants.BUILD_MODE);
+                   }else {
+                       idText.setText(playList.getAdMachine().getId());
+                   }
                }
            });
 
@@ -120,7 +124,7 @@ public class PlayingTask extends BasicTask{
             return;
         }
 
-        url = url + playList.getAdMachine().getId() +"/" + page.getContentType() +"/"+page.getContentId() + "/";
+        url = url + playList.getAdMachine().getId() +"/" + page.getContentType() +"/"+page.getContentId() + "/" + mainActivity.getPowerUpTime() + "/";
         try {
             HttpUtils.getRequestWithUseAgent(url);
         } catch (Exception e) {
