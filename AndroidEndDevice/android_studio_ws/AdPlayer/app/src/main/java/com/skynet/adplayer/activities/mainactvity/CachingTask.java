@@ -1,5 +1,7 @@
 package com.skynet.adplayer.activities.mainactvity;
 
+import android.widget.Toast;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skynet.adplayer.activities.MainActivity;
 import com.skynet.adplayer.common.AdMachinePageContent;
@@ -74,20 +76,31 @@ public class CachingTask extends BasicTask {
                 return Constants.CACHE_ACTION_NO_CHANGE;
             }
 
-            mainActivity.updateBottomStatues("正在请求播放列表",null, false);
+            mainActivity.updateBottomStatues("正在请求播放列表",null, true);
             File playListFile = mainActivity.savePlayListFile(playList);
 
             List<AdMachinePageContent> pages = playList.getPages();
             int totalContents = pages.size();
             int downloadedContents = 0;
-            mainActivity.updateBottomStatues("正在下载广告内容", 0d, false);
+            mainActivity.updateBottomStatues("正在下载广告内容", 0d, true);
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(mainActivity, "开始下载新的内容列表", Toast.LENGTH_LONG).show();
+                }
+            });
             for(AdMachinePageContent page : pages) {
                 mainActivity.downloadAdContentFile(page);
                 downloadedContents ++;
-                mainActivity.updateBottomStatues("正在下载广告内容", downloadedContents * 100.0 / totalContents, false);
+                mainActivity.updateBottomStatues("正在下载广告内容", downloadedContents * 100.0 / totalContents, true);
             }
             mainActivity.markPlayListProcessingDone(playListFile);
-
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(mainActivity, "内容列表已更新", Toast.LENGTH_LONG).show();
+                }
+            });
             return Constants.CACHE_ACTION_SUCCESS;
         }catch (Exception e){
             e.printStackTrace();

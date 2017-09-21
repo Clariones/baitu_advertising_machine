@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.skynet.adplayer.R;
 import com.skynet.adplayer.activities.MainActivity;
 
@@ -27,10 +28,15 @@ public class ContentPlayer {
         mainActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                Uri uri = Uri.parse("file://" + imageFile.getAbsolutePath());
+                String fileName = imageFile.getName().toLowerCase();
+                if (fileName.endsWith(".gif")){
+                    Glide.with(mainActivity).load(uri).asGif().into(imageView);
+                }else {
+                    imageView.setImageURI(uri);
+                }
                 staticTextLayout.setVisibility(View.GONE);
                 imageViewLayout.setVisibility(View.VISIBLE);
-                Uri uri = Uri.parse("file://" + imageFile.getAbsolutePath());
-                imageView.setImageURI(uri);
             }
         });
 

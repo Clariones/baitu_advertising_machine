@@ -106,6 +106,7 @@ public class PlayingTask extends BasicTask{
                }
                reportDisplayEvent(playList, page);
                adContent.startToPlay(mainActivity);
+               Log.i(TAG, "Play AD content " + page.getContentType() +" " + page.getContentId());
 
                adContent.waitingForPlayingDone();
                if (!isRunning()){
@@ -140,8 +141,10 @@ public class PlayingTask extends BasicTask{
             int endTimeSec = page.getEndTimeSec();
 
             if (DateTimeUtils.inTimeRange(curTimeSec, startTimeSec, endTimeSec)){
-                return i;
+                Log.i("CHECK_VALID_CONTENT", page.getContentId()+" is valid in [" + startTimeSec+","+endTimeSec+"]");
+                return pos;
             }
+            Log.i("CHECK_VALID_CONTENT", page.getContentId()+" is not valid in [" + startTimeSec+","+endTimeSec+"] and now is " + curTimeSec);
         }
 
         return index;

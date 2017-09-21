@@ -28,7 +28,7 @@ public class ConfigurationManager {
     private Rect position;
     private boolean initialed;
     private Timer autoHideTimer;
-    private boolean needPassword = true;
+    private boolean needPassword = false;
     private boolean isAskingPassword =false;
 
     public void initMembers(MainActivity mainActivity) {
@@ -93,13 +93,25 @@ public class ConfigurationManager {
         editText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_CLASS_TEXT);
         AlertDialog.Builder inputDialog = new AlertDialog.Builder(mainActivity);
         inputDialog.setTitle("请输入管理员口令").setView(editText);
-        inputDialog.setNegativeButton("取消", null);
+        inputDialog.setNegativeButton("取消",  new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                isAskingPassword= false;
+            }
+        });
         inputDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         verifyPassword(editText.getText().toString());
                     }
-                }).show();
+                });
+        inputDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                isAskingPassword= false;
+            }
+        });
+        inputDialog.show();
     }
 
     private void verifyPassword(String inputPwd) {
