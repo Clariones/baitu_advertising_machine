@@ -10,11 +10,19 @@
     <Preference
         android:key="pref_key_apk_version"
         android:title="版本号" />
+
     <PreferenceScreen
         android:key="wifi_settings"
         android:summary=""
         android:title="wifi设置">
         <intent android:action="android.settings.WIFI_SETTINGS" />
     </PreferenceScreen>
+    <Preference
+        android:key="pref_key_ext_storage"
+        android:title="外部存储位置" />
+    <Preference
+        android:title="返回"
+        android:key="pref_key_close_and_return"
+        android:summary="点击返回主页面"/>
 
 </PreferenceScreen>
