@@ -8,8 +8,8 @@ android {
         applicationId "com.skynet.adplayer"
         minSdkVersion 17
         targetSdkVersion 25
-        versionCode 27
-        versionName "v2.4.0.27"
+        versionCode 28
+        versionName "v2.5.0.28"
     }
     buildTypes {
         release {

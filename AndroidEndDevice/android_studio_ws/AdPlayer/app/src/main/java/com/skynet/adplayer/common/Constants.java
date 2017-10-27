@@ -65,7 +65,7 @@ public class Constants {
 
 
 
-    public static final String BUILD_MODE_TEST = "测试环境-52.80.99.161";
+    public static final String BUILD_MODE_TEST = "测试环境-54.222.200.180";
     public static final String BUILD_MODE_PRODUCT = "product";
     public static final String BUILD_MODE_DEVELOP = "开发环境";
     public static final String BUILD_MODE = BUILD_MODE_TEST;
@@ -77,7 +77,7 @@ public class Constants {
     // for product
     public static final String START_UP_SERVER_ADDRESS = "http://www.bettbio.com/bettbio_ad/devices_v1/pc_iframe/data/startup/info.json";
     // for test
-    public static final String START_UP_SERVER_ADDRESS_TEST = "http://www.bettbio.com/bettbio_ad/devices_v1/pc_iframe/data/startup/info_testenv.json";
+    public static final String START_UP_SERVER_ADDRESS_TEST = "http://www.bettbio.com/bettbio_ad/devices_v2/pc_iframe/data/startup/info_v2_testenv.json";
     // for develop
     //    public static final String START_UP_SERVER_ADDRESS = "http://192.168.201.47:8080/test_start_up/data/info_10.0.2.2.json";
     public static final String START_UP_SERVER_ADDRESS_DEV = "http://192.168.201.47:8080/test_start_up/data/info_192.168.201.47.json";

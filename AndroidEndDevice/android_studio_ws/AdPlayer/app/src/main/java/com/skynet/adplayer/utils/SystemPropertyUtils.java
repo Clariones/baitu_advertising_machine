@@ -2,12 +2,17 @@ package com.skynet.adplayer.utils;
 
 import android.os.Build;
 import android.os.Environment;
+import android.util.Log;
 
 import com.skynet.adplayer.BuildConfig;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 import java.util.Properties;
 
 /**
@@ -43,13 +48,59 @@ public class SystemPropertyUtils {
             String model = getModel();
             if (model.equalsIgnoreCase("c300")) {
                 sn_str = SystemPropertyUtils.getProperty("ro.boot.serialnoext", "unknown");
-            } else {
+            } else if (model.toLowerCase().indexOf("rk312x") >= 0){
                 sn_str = Build.SERIAL;
+            } else {
+                sn_str = getMacAddressAsString();
             }
         }
         return sn_str;
     }
 
+    private static String getMacAddressAsString() {
+        String mac_s= "";
+        try {
+            byte[] mac;
+            NetworkInterface ne= NetworkInterface.getByInetAddress(InetAddress.getByName(getLocalIpAddress()));
+            mac = ne.getHardwareAddress();
+            mac_s = byte2hex(mac);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return mac_s;
+    }
+
+    private static String byte2hex(byte[] mac) {
+        StringBuilder sb = new StringBuilder();
+        if (mac == null || mac.length == 0){
+            return "unknown";
+        }
+        for(byte bMac : mac){
+            sb.append(String.format("%02X", bMac));
+        }
+        return sb.toString();
+    }
+
+    public static String getLocalIpAddress() {
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface
+                    .getNetworkInterfaces(); en.hasMoreElements();) {
+                NetworkInterface intf = en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = intf
+                        .getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress()) {
+                        return inetAddress.getHostAddress().toString();
+                    }
+                }
+            }
+        } catch (SocketException ex) {
+            Log.e("getLocalIpAddress", ex.toString());
+        }
+
+        return null;
+    }
     public static String getModel() {
         if (model_str != null){
             return model_str;
