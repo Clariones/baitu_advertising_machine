@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skynet.adplayer.activities.MainActivity;
-import com.skynet.adplayer.common.Constants;
 import com.skynet.adplayer.utils.HttpUtils;
 import com.skynet.adplayer.utils.MiscUtils;
 
@@ -68,6 +67,10 @@ public class PollingTask extends BasicTask{
                 sleep(1000);
             } catch (InterruptedException e) {
                 // nothing to do when interrupted
+            }
+
+            if (!mainActivity.isPlayingTaskRunning() && mainActivity.isOfflineState()){
+                mainActivity.reCheckOfflinePlaying();
             }
         }
     }

@@ -33,6 +33,7 @@ import com.skynet.adplayer.utils.MiscUtils;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mBtnUpgrade;
     private Button mBtnTestNextwork;
     private long powerUpTime;
+    private static AtomicBoolean initDone = new AtomicBoolean(false);
 
     public long getOfflineStartTime() {
         return offlineStartTime;
@@ -98,19 +100,22 @@ public class MainActivity extends AppCompatActivity {
 
         markOfflineFlag(true);
         tryGetRootPermission();
-        marqueeShower.startScollingTask();
+        //marqueeShower.startScollingTask();
 
         clearGarbage();
         File playListFile = findNewestPlayListFile();
         if (null == playListFile){
             staticTextShower.onStartWithoutAnyContent();
             pollingTask.startToRun();
+            initDone.set(true);
             return;
         }
 
 
         playingTask.startToRun();
+        playingTask.setRunning(true);
         pollingTask.startToRun();
+        initDone.set(true);
     }
 
     private void tryGetRootPermission() {
@@ -203,6 +208,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void processInternalMessage(Message msg) {
+        if (!initDone.get()){
+            return;
+        }
         switch (msg.what){
             case MESSAGE_CODE_CHANGE_OFFLINE_STATE:
                 boolean isOffline = msg.arg1 != 0;
@@ -416,5 +424,15 @@ public class MainActivity extends AppCompatActivity {
 
     public long getPowerUpTime() {
         return powerUpTime;
+    }
+
+
+    public void reCheckOfflinePlaying() {
+        File playListFile = findNewestPlayListFile();
+        if (null == playListFile){
+            return;
+        }
+
+        playingTask.startToRun();
     }
 }

@@ -38,7 +38,7 @@ public class ContentManager {
 
     public File findNewestPlayListFile() {
         File baseFolder = getContentBaseFolder();
-
+        Log.d("====START====", "base folder is " + baseFolder);
         String[] files = baseFolder.list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
