@@ -29,8 +29,8 @@ public class HttpUtils {
 		InputStream ins = httpUrlConnection.getInputStream();
 		ByteArrayOutputStream  bout = new ByteArrayOutputStream();
 		byte[] buff = new byte[1024];
-		while(ins.available() > 0){
-			int n = ins.read(buff);
+		int n;
+		while((n = ins.read(buff)) > 0){
 //			System.out.println("READ " + n);
 			bout.write(buff, 0, n);
 			System.out.print(".");
@@ -56,7 +56,7 @@ public class HttpUtils {
 		
 		FileOutputStream fout = new FileOutputStream(imageFile);
 //		URL url = new URL("http://ad.bettbio.com:8280/" + uri);
-		String urlStr = "http://119.23.65.188:8280/" + uri;
+		String urlStr = "http://ad.bettbio.com:8280/" + uri;
 		
 		URL url = new URL(encodeEntireUrl(urlStr));
 		

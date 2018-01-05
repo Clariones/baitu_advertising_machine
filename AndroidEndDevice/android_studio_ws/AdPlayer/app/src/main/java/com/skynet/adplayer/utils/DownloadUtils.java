@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -45,8 +46,19 @@ public class DownloadUtils {
 
         //set destination
         request.setDestinationUri(uri);
+        int state = context.getPackageManager().getApplicationEnabledSetting("com.android.providers.downloads");
+        if(state==PackageManager.COMPONENT_ENABLED_STATE_DISABLED||
+                state==PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER
+                ||state== PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED){
 
+// Cannot download using download manager
+            return;
+        }
+//        if (true){
+//            return;
+//        }
         // get download service and enqueue file
+        request.setMimeType("application/zip");
         final DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
         final long downloadId = manager.enqueue(request);
         handler.onDownloadStart(downloadId);

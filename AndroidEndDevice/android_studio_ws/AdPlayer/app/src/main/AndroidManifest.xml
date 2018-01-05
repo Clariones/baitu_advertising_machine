@@ -16,8 +16,6 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.REBOOT" tools:ignore="ProtectedPermissions"/>
-    has
-    has
 
     <uses-sdk
         android:minSdkVersion="17"

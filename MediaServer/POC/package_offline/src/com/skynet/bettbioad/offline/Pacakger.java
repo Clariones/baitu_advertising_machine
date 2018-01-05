@@ -24,12 +24,14 @@ public class Pacakger {
 //			System.out.println("Please input adMachineModel, adMachineSerialNumber and base folder");
 //			return;
 //		}
-		String model = "Nexus+7";
-		String sn = "059996dd";
+		// url : http://ad.bettbio.com:8180/naf/playListManager/retrievePlayListOfAdMachine/c300/ZHEYDQLJ6TZDTSG6/v2.6.0.30/
+		String model = "c300";
+		String sn = "ZHEYDQLJ6TZDTSG6";
+		String version = "v2.6.0.30";
 		String outputFolde = ".";
-		String hostPrefix = "http://119.23.65.188:8080/bettbio_ad";
+		String hostPrefix = "http://ad.bettbio.com:8180/naf";
 		String url = hostPrefix+"/playListManager/retrievePlayListOfAdMachine/";
-		url += model + "/" + sn +"/";
+		url += model + "/" + sn +"/"+version+"/";
 		File baseFolder = new File(outputFolde);
 		System.out.println("Packaging contents from " + url+" to " + baseFolder.getAbsolutePath());
 		
