@@ -18,6 +18,7 @@ public abstract class BasicTask extends Thread {
             this.join();
         } catch (InterruptedException e) {
         }
+        setRunning(false);
     }
 
     public void startToRun() {

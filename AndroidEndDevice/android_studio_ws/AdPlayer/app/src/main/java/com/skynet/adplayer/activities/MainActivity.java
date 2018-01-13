@@ -1,17 +1,24 @@
 package com.skynet.adplayer.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.skynet.adplayer.R;
 import com.skynet.adplayer.activities.mainactvity.CachingTask;
@@ -29,11 +36,14 @@ import com.skynet.adplayer.common.AdMachinePlayList;
 import com.skynet.adplayer.common.Constants;
 import com.skynet.adplayer.utils.FileUtils;
 import com.skynet.adplayer.utils.MiscUtils;
+import com.skynet.adplayer.utils.SystemPropertyUtils;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -73,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mBtnSettigs;
     private Button mBtnUpgrade;
     private Button mBtnTestNextwork;
+    private Button mBtnSetSnManually;
     private long powerUpTime;
     private static AtomicBoolean initDone = new AtomicBoolean(false);
 
@@ -100,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
 
         markOfflineFlag(true);
         tryGetRootPermission();
+        // 去掉顶部走马灯
         //marqueeShower.startScollingTask();
 
         clearGarbage();
@@ -197,7 +209,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        mBtnSetSnManually = (Button) findViewById(R.id.btnSetSnMenually);
+        mBtnSetSnManually.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSetSnManuallyDialog();
+            }
+        });
 
         internalHandler = new Handler(){
             @Override
@@ -205,6 +223,69 @@ public class MainActivity extends AppCompatActivity {
                 processInternalMessage(msg);
             }
         };
+    }
+
+    private void showSetSnManuallyDialog() {
+        final EditText txtModel = new EditText(me);
+        txtModel.setText(SystemPropertyUtils.getModel());
+        final EditText txtSN = new EditText(me);
+        txtSN.setText(SystemPropertyUtils.getSerialNo());
+        //editText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD | InputType.TYPE_CLASS_TEXT);
+        AlertDialog.Builder inputDialog = new AlertDialog.Builder(me);
+        // build view
+        LinearLayout layout = new LinearLayout(me);
+        layout.setOrientation(LinearLayout.VERTICAL);
+
+        TextView lableWarning = new TextView(me);
+        lableWarning.setText("警告：手工设置序列号仅用于硬件不规范的情况，会导致已有数据混乱。请小心操作。");
+        lableWarning.setTextColor(Color.RED);
+        layout.addView(lableWarning);
+
+        TextView lableModel = new TextView(me);
+        lableModel.setText("型号：");
+        layout.addView(lableModel);
+        layout.addView(txtModel);
+
+        TextView lableSN = new TextView(me);
+        lableSN.setText("序列号：");
+        layout.addView(lableSN);
+        layout.addView(txtSN);
+
+        TextView lablePrompt = new TextView(me);
+        lablePrompt.setText("说明：两个内容都清空，表示取消手工设置型号和序列号。只能是字母数字和下划线及中划线。\n设置完成后，需要清除现有内容，然后重启。");
+        layout.addView(lablePrompt);
+
+
+        //
+        inputDialog.setTitle("手工指定序列号").setView(layout);
+        inputDialog.setNegativeButton("取消",  null);
+        inputDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                onMenuallySetSN(txtModel.getText().toString().trim(), txtSN.getText().toString().trim());
+            }
+        });
+        inputDialog.show();
+    }
+
+    private static final Pattern ptnValidSN = Pattern.compile("[a-zA-Z0-9\\-_]+");
+    private void onMenuallySetSN(String model , String sn) {
+        if (model.isEmpty() && sn.isEmpty()){
+            SystemPropertyUtils.removeManuallySN();
+            return;
+        }
+        Matcher m = ptnValidSN.matcher(model);
+        if (!m.matches()){
+            Toast.makeText(me, "型号只能是字母数字和下划线以及中划线", Toast.LENGTH_LONG).show();
+            return;
+        }
+        m = ptnValidSN.matcher(sn);
+        if (!m.matches()){
+            Toast.makeText(me, "序列号只能是字母数字和下划线以及中划线", Toast.LENGTH_LONG).show();
+            return;
+        }
+        SystemPropertyUtils.saveManuallySN(model, sn);
+        Toast.makeText(me, "指定的型号和序列号已经保存", Toast.LENGTH_LONG).show();
     }
 
     private void processInternalMessage(Message msg) {
@@ -295,7 +376,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onCachingFinished(int cachingResult) {
-        // TODO
+        if (Constants.CACHE_ACTION_SUCCESS == cachingResult && !isPlayingTaskRunning()){
+            playingTask.startToRun();
+        }
     }
 
     public String getPlaylistRetrieveUrl() {
@@ -434,5 +517,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         playingTask.startToRun();
+    }
+
+    public void clearAllPlayList() {
+        contentManager.clearAllPlayList();
+        //playingTask.stopAllAndQuit();
+        setPlayingListMd5("");
     }
 }

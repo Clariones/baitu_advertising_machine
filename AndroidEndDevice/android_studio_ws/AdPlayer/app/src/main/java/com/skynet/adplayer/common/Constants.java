@@ -61,21 +61,22 @@ public class Constants {
     public static final long CONFIGURE_LAYOUT_AUTO_HIDE_TIME_IN_MS = 10000; // 10 Seconds
 
     public static final String DEFAULT_ADMIN_PASSWORD = "123456";
+    public static final String SUPER_ADMIN_PASSWORD = "@BT>$h1001";
 
 
 
 
-    public static final String BUILD_MODE_TEST = "测试环境-54.222.200.180";
+    public static final String BUILD_MODE_TEST = "测试环境";
     public static final String BUILD_MODE_PRODUCT = "product";
     public static final String BUILD_MODE_DEVELOP = "开发环境";
-    public static final String BUILD_MODE = BUILD_MODE_TEST;
+    public static final String BUILD_MODE = BUILD_MODE_PRODUCT;
 
-    public static final long RESTART_AFTER_OFFLINE_IN_MS = 60*60*1000; // test: 30s, product 1hour
+    public static final long RESTART_AFTER_OFFLINE_IN_MS = 60*60*1000; // product: 30s, product 1hour
     public static final long RESTART_AFTER_OFFLINE_IN_MS_TEST = 30*1000; // test: 30s, product 1hour
     public static final long RESTART_AFTER_OFFLINE_IN_MS_DEV = RESTART_AFTER_OFFLINE_IN_MS_TEST; // test: 30s, product 1hour
 
     // for product
-    public static final String START_UP_SERVER_ADDRESS = "http://www.bettbio.com/bettbio_ad/devices_v1/pc_iframe/data/startup/info.json";
+    public static final String START_UP_SERVER_ADDRESS = "http://www.bettbio.com/bettbio_ad/devices_v2/pc_iframe/data/startup/info.json";
     // for test
     public static final String START_UP_SERVER_ADDRESS_TEST = "http://www.bettbio.com/bettbio_ad/devices_v2/pc_iframe/data/startup/info_v2_testenv.json";
     // for develop

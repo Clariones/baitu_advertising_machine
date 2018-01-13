@@ -1,17 +1,20 @@
 package com.skynet.adplayer.activities;
 
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.skynet.adplayer.BuildConfig;
 import com.skynet.adplayer.R;
 import com.skynet.adplayer.common.Constants;
+import com.skynet.adplayer.utils.MiscUtils;
 import com.skynet.adplayer.utils.SystemPropertyUtils;
 
 public class SettingsActivity extends AppCompatActivity {    @Override
@@ -36,6 +39,45 @@ protected void onCreate(Bundle savedInstanceState) {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     SettingsFragment.this.getActivity().finish();
+                    return true;
+                }
+            });
+
+            Preference btnReboot = findPreference("pref_key_reboot");
+            btnReboot.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    AlertDialog.Builder inputDialog = new AlertDialog.Builder(SettingsFragment.this.getActivity());
+                    inputDialog.setTitle("确定要重启系统么？");
+                    inputDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            SettingsFragment.this.getActivity().finish();
+                            MiscUtils.restart(MainActivity.me);
+                        }
+                    });
+                    inputDialog.setNegativeButton("取消", null);
+                    inputDialog.show();
+                    return true;
+                }
+            });
+
+            //
+            Preference btnClearPlayList = findPreference("pref_key_clear_play_list");
+            btnClearPlayList.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    AlertDialog.Builder inputDialog = new AlertDialog.Builder(SettingsFragment.this.getActivity());
+                    inputDialog.setTitle("清除播放列表后，将没有内容可以播放。确定清除吗？");
+                    inputDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            SettingsFragment.this.getActivity().finish();
+                            MainActivity.me.clearAllPlayList();
+                        }
+                    });
+                    inputDialog.setNegativeButton("取消", null);
+                    inputDialog.show();
                     return true;
                 }
             });

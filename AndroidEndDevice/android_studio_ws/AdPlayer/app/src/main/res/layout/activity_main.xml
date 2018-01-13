@@ -112,7 +112,7 @@
         android:id="@+id/config_buttons_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="0dp"
+        android:paddingTop="24dp"
         android:visibility="visible"
         android:orientation="horizontal"
         android:layout_below="@+id/scrollTextLayout"
@@ -121,6 +121,14 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
+        <Button
+            android:id="@+id/btnSetSnMenually"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:text="手工指定序列号"
+            android:visibility="visible"/>
 
         <Button
             android:id="@+id/btnTestNetwork"

@@ -8,6 +8,9 @@ import com.skynet.adplayer.BuildConfig;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -145,5 +148,33 @@ public class SystemPropertyUtils {
         sb.append("/").append(getVersion());
 
         return sb.toString();
+    }
+
+    public static void removeManuallySN() {
+        File simSnFile = new File(Environment.getExternalStorageDirectory(), "sim_sn.txt");
+        FileUtils.deleteAll(simSnFile);
+        resetModelAndSn();
+    }
+
+    private static void resetModelAndSn() {
+        synchronized (SystemPropertyUtils.class) {
+            model_str = null;
+            sn_str = null;
+        }
+    }
+
+    public static void saveManuallySN(String model, String sn) {
+        File simSnFile = new File(Environment.getExternalStorageDirectory(), "sim_sn.txt");
+        String content=String.format("model=%s\r\nsn=%s\r\n", model, sn);
+        try {
+            FileOutputStream fout = new FileOutputStream(simSnFile);
+            fout.write(content.getBytes());
+            fout.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        resetModelAndSn();
     }
 }

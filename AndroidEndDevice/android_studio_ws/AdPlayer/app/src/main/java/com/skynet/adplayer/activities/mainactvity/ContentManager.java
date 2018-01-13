@@ -226,7 +226,7 @@ public class ContentManager {
         File[] files = folder.listFiles(new FileFilter() {
             @Override
             public boolean accept(File pathname) {
-                if (playListFile.equals(pathname)){
+                if (playListFile != null && playListFile.equals(pathname)){
                     return false;
                 }
                 Matcher m = Constants.playListFileNamePattern.matcher(pathname.getName());
@@ -242,5 +242,9 @@ public class ContentManager {
         for(File file : files){
             FileUtils.deleteAll(file);
         }
+    }
+
+    public void clearAllPlayList() {
+        deleteOtherPlayListFile(null);
     }
 }
