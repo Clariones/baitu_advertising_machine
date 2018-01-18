@@ -93,6 +93,11 @@ public class PlayingTask extends BasicTask{
                    String fileName = FileUtils.calcCachedAdContentFileName(page);
                    ImageAdContent imageContent = new ImageAdContent();
                    File imageFile = mainActivity.getCachedImageFileByName(fileName);
+                   // 判断,如果文件大于500K,跳过
+                   if (imageFile.length() > MiscUtils.getFileSizeLimit()){
+                       Log.e(TAG, "Skip because file Size too high: " + imageFile.length());
+                       continue;
+                   }
                    imageContent.setImageFile(imageFile);
                    imageContent.setPlayDuration(page.getPlayDuration());
                    imageContent.setMainActivity(mainActivity);
@@ -104,9 +109,10 @@ public class PlayingTask extends BasicTask{
                    Log.e(TAG, "Unsupport AD type " + page.getContentType());
                    continue;
                }
+               Log.i(TAG, "Play AD content " + page.getContentType() +" " + page.getContentId());
                reportDisplayEvent(playList, page);
                adContent.startToPlay(mainActivity);
-               Log.i(TAG, "Play AD content " + page.getContentType() +" " + page.getContentId());
+
 
                adContent.waitingForPlayingDone();
                if (!isRunning()){

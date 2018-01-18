@@ -57,7 +57,11 @@ public class FileUtils {
         if (pos < 0){
             return "unkown";
         }
-        return imageUri.substring(pos+1);
+        int pos2 = imageUri.lastIndexOf('?');
+        if (pos2 < pos) {
+            return imageUri.substring(pos + 1);
+        }
+        return imageUri.substring(pos + 1, pos2);
     }
 
     public static String calcCachedPlayListFileName() {

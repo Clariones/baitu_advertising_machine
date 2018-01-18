@@ -1,5 +1,7 @@
 package com.skynet.adplayer.utils;
 
+import android.util.Log;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -164,6 +166,7 @@ public class HttpUtils {
     public static void saveResponseToFile(String url, File file) throws Exception{
         InputStream in = null;
         FileOutputStream fout = null;
+        Log.i("=SAVE PICTURE=", "file " + file.getAbsolutePath()+", url=" + url);
         try {
             if (!file.exists()){
                 file.getParentFile().mkdirs();

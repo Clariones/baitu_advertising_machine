@@ -11,6 +11,7 @@ import com.skynet.adplayer.common.Constants;
 import java.security.MessageDigest;
 
 public class MiscUtils {
+
     @NonNull
     public static ObjectMapper createObjectMapper() {
         ObjectMapper jsonMapper = new ObjectMapper();
@@ -93,4 +94,7 @@ public class MiscUtils {
     }
 
 
+    public static long getFileSizeLimit() {
+        return Constants.IMAGE_FILE_SIZE_LIMIT;
+    }
 }

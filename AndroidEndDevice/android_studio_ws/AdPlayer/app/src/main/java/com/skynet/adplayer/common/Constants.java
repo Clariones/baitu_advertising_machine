@@ -82,5 +82,7 @@ public class Constants {
     // for develop
     //    public static final String START_UP_SERVER_ADDRESS = "http://192.168.201.47:8080/test_start_up/data/info_10.0.2.2.json";
     public static final String START_UP_SERVER_ADDRESS_DEV = "http://192.168.201.47:8080/test_start_up/data/info_192.168.201.47.json";
+
+    public static final long IMAGE_FILE_SIZE_LIMIT = 500*1024;
 //    public static final long RESTART_AFTER_OFFLINE_IN_MS = 30*1000;
 }
